@@ -15,6 +15,7 @@ export class Bullet extends Actor {
 
   override onInitialize() {
     this.vel = this.direcao.normalize().scale(1000);
+    this.actions.delay(1000).die();
   }
 
 }
