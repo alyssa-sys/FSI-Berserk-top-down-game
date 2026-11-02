@@ -7,8 +7,6 @@ export class MyLevel extends Scene {
         // Scene.onInitialize is where we recommend you perform the composition for your game
         const player = new Player();
         this.add(player); // Actors need to be added to a scene to be drawn
-        const bullet = new Bullet(vec (100, 300), vec(1, 0));
-        this.add(bullet);
     }
 
     override onPreLoad(loader: DefaultLoader): void {

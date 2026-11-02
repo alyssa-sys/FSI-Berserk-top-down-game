@@ -1,5 +1,6 @@
 import { Actor, Collider, CollisionContact, Engine, Side, vec, Keys } from "excalibur";
 import { Resources } from "./resources";
+import { Bullet } from "./bullet";
 
 // Actors are the main unit of composition you'll likely use, anything that you want to draw and move around the screen
 // is likely built with an actor
@@ -40,9 +41,6 @@ export class Player extends Actor {
     // 3. Deferring logic to run time instead of constructor time
     // 4. Lazy instantiation
     this.graphics.add(Resources.Sword.toSprite());
-
-
-
     // Sometimes you want to click on an actor!
     this.on('pointerdown', evt => {
       // Pointer events tunnel in z order from the screen down, you can cancel them!
@@ -67,6 +65,10 @@ export class Player extends Actor {
     }
     if (engine.input.keyboard.isHeld(Keys.S)){
        direcao.y = 1;
+    }
+    if(engine.input.keyboard.wasPressed(Keys.Space)){
+      const bullet = new Bullet(this.pos.clone(), vec(1,0));
+      this.scene?.add(bullet)
     }
     this.vel = direcao.scale(200);
   }
