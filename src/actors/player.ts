@@ -1,5 +1,5 @@
-import { Actor, Collider, CollisionContact, Engine, Side, vec, Keys } from "excalibur";
-import { Resources } from "./resources";
+import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys } from "excalibur";
+import { Resources } from "../config/resources";
 import { Bullet } from "./bullet";
 
 // Actors are the main unit of composition you'll likely use, anything that you want to draw and move around the screen
@@ -16,6 +16,8 @@ import { Bullet } from "./bullet";
 
 
 export class Player extends Actor {
+  private direction: Vector = vec(1, 0);
+  private fire_cd: number = 0;
   constructor() {
     super({
       // Giving your actor a name is optional, but helps in debugging using the dev tools or debug mode
@@ -54,6 +56,8 @@ export class Player extends Actor {
   override onPreUpdate(engine: Engine, elapsedMs: number): void {
     // Put any update logic here runs every frame before Actor builtins
     let direcao = vec(0,0);
+    this.fire_cd -= elapsedMs;
+
     if (engine.input.keyboard.isHeld(Keys.D)){
        direcao.x = 1;
     }
@@ -66,9 +70,15 @@ export class Player extends Actor {
     if (engine.input.keyboard.isHeld(Keys.S)){
        direcao.y = 1;
     }
-    if(engine.input.keyboard.wasPressed(Keys.Space)){
-      const bullet = new Bullet(this.pos.clone(), vec(1,0));
-      this.scene?.add(bullet)
+    
+    if (direcao.magnitude > 0){
+      this.direction = direcao.clone();
+    }
+
+    if(engine.input.keyboard.isHeld(Keys.Space) && this.fire_cd <=0){
+      const bullet = new Bullet(this.pos.clone(), this.direction.clone());
+      this.fire_cd = 120;
+      this.scene?.add(bullet);
     }
     this.vel = direcao.scale(200);
   }
