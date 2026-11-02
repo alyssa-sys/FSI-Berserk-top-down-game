@@ -14,8 +14,8 @@ export class Bullet extends Actor {
   }
 
   override onInitialize() {
-    this.vel = this.direcao.normalize().scale(1000);
-    this.actions.delay(1000).die();
+    this.vel = this.direcao.normalize().scale(1000); // velocidade da bala
+    this.actions.delay(1000).die(); // remoção da bala
   }
 
 }
