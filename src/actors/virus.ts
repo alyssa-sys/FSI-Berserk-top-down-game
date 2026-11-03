@@ -1,15 +1,17 @@
-import { Actor, Vector, Color, Rectangle, Engine } from "excalibur";
+import { Actor, Vector, Color, Rectangle, Engine, CollisionType, Collider, CollisionContact, Side } from "excalibur";
 import { SubFolder } from "../actors/subfolder";
 
 export class Virus extends Actor {
     private target: Actor | null = null;
     private speed: number = 70;  // velocidade de perseguição do virus
+    
 
     constructor(pos: Vector) {
         super({
             pos: pos,
             width: 24,
             height: 24,
+            collisionType: CollisionType.Active // Permite que ele colida com paredes e subpastas
         });
     }
 
