@@ -1,6 +1,5 @@
 # FSI-Berserk-top-down-game
 Projeto de desenvolvimento de um jogo web top-down utilizando framework Excalibur.
-
 # Excalibur TypeScript & Vite template
 
 Check out the full documentation @ https://excaliburjs.com

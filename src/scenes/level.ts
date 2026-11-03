@@ -3,6 +3,8 @@ import { Player } from "../actors/player";
 // import { Bullet } from "../actors/bullet";
 import { SubFolder } from "../actors/subfolder";
 import { Virus } from "..//actors/virus";
+import { BigBug } from "../actors/bigbug";
+import { SmallBug } from "../actors/smallbug";
  
 export class MyLevel extends Scene {
     public subFolders: SubFolder[] = [];
@@ -47,6 +49,11 @@ export class MyLevel extends Scene {
         // adicionar um virus de teste nascendo na parte inferior da tela
         const testVirus = new Virus(vec(w / 2, h - 100));
         this.add(testVirus);
+
+        // bugs de teste
+        this.add(new BigBug(vec(w / 2, 90)));
+        this.add(new SmallBug(vec(100, 100)));
+        this.add(new SmallBug(vec(w - 100, 100)));
     }
 
     private createBoundaryWalls(w: number, h: number, thickness: number): void {
