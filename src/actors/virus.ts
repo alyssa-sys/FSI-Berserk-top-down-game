@@ -17,6 +17,7 @@ export class Virus extends Actor {
 
     override onInitialize(engine: Engine): void {
         // visual temporario do virus
+        this.addTag('enemy'); // tag de inimigo para causar dano ao player
         this.graphics.use(new Rectangle({
             width: 24,
             height: 24,

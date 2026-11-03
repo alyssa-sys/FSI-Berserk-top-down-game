@@ -15,6 +15,7 @@ export class BigBug extends Bug {
     }
 
     override onInitialize(): void {
+        this.addTag('enemy'); // tag de inimigo para causar dano ao player
         this.graphics.use(new Rectangle({
             width: 56,
             height: 56,

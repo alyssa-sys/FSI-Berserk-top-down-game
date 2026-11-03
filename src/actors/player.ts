@@ -2,10 +2,14 @@
 import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
+import { Virus } from "../actors/virus";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
   private fire_cd: number = 0;
+  private hp: number = 3;
+  private invul: number = 0;
+
   constructor() {
     super({
       name: 'Player',
@@ -27,6 +31,21 @@ export class Player extends Actor {
   override onPreUpdate(engine: Engine, elapsedMs: number): void {
     let direcao = vec(0,0); // posição inicial do player
     this.fire_cd -= elapsedMs; // cooldown de cadência do tiro
+    this.invul -= elapsedMs; // tempo de invulnerabilidade ao tomar dano
+
+    if (this.invul > 0){
+      const calc_flash = Math.floor(this.invul/100)%2; // visualizando os segundos de invulnerabilidade do player
+      if (calc_flash == 0){
+        this.graphics.opacity = 0.3;
+      }
+      else{
+        this.graphics.opacity = 1;
+      }
+
+    }
+    else{
+      this.graphics.opacity = 1;
+    }
 
     // movimentos (w,a,s,d)
 
@@ -68,6 +87,13 @@ export class Player extends Actor {
   }
 
   override onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
+    if (other.owner?.hasTag("enemy") && this.invul <= 0){ // verificar se o player tomou hit do inimigo
+      this.hp -= 1;
+      this.invul = 2000;
+    }
+    if (this.hp <= 0){
+      this.kill();
+    }
   }
 
   override onCollisionEnd(self: Collider, other: Collider, side: Side, lastContact: CollisionContact): void {
