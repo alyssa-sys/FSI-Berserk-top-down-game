@@ -7,7 +7,7 @@ export class SubFolder extends Actor {
 
     constructor(name: string, pos: Vector) {
         super({
-            name: 'SubFolder_${name}',
+            name: `SubFolder_${name}`,
             pos: pos,
             width: 64,
             height: 64,
@@ -26,11 +26,11 @@ export class SubFolder extends Actor {
     }
 
     // Método pra corromper pastas quando o vírus chega nelas
-    public infect(amount: 5): void {
+    public infect(amount: number = 5): void {
         if (this.isInfected) return;
 
         this.infectionLevel += amount;
-        console.log('Pasta ${this.folderName} corrompida em ${this.infectionLevel}%');
+        console.log(`Pasta ${this.folderName} corrompida em ${this.infectionLevel}%`);
 
         if (this.infectionLevel >= 100) {
             this.isInfected = true;

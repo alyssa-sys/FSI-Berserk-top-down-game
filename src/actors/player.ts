@@ -1,5 +1,5 @@
 
-import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys } from "excalibur";
+import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
 
@@ -10,8 +10,9 @@ export class Player extends Actor {
     super({
       name: 'Player',
       pos: vec(150, 150),
-      width: 100,
-      height: 100,
+      width: 50,
+      height: 50,
+      collisionType: CollisionType.Active // Garante que ele colida com paredes e subpastas
     });
     
   }
