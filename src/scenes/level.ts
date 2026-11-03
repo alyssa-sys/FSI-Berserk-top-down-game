@@ -1,4 +1,4 @@
-import { Actor, DefaultLoader, Engine, ExcaliburGraphicsContext, Rectangle, Color, Scene, SceneActivationContext, vec, CollisionType } from "excalibur";
+import { Actor, DefaultLoader, Engine, ExcaliburGraphicsContext, Rectangle, Color, Scene, SceneActivationContext, ScreenElement, vec, CollisionType, } from "excalibur";
 import { Player } from "../actors/player";
 // import { Bullet } from "../actors/bullet";
 import { SubFolder } from "../actors/subfolder";
@@ -8,6 +8,8 @@ import { SmallBug } from "../actors/smallbug";
  
 export class MyLevel extends Scene {
     public subFolders: SubFolder[] = [];
+    private hearts: ScreenElement[] = [];
+    private player!: Player;
 
     override onInitialize(engine: Engine): void {
         const thickness = 32;
@@ -33,9 +35,21 @@ export class MyLevel extends Scene {
         this.createBoundaryWalls(w, h, thickness);
 
         // Adicionar jogador
-        const player = new Player();
-        player.pos = vec(w / 2, (h / 2) + 100);
-        this.add(player); 
+        this.player = new Player(); // hiago: troquei const player para this.player devido a mecanica de hp
+        this.player.pos = vec(w / 2, (h / 2) + 100);
+        this.add(this.player); 
+
+        // adicionar corações de vida do player
+        for (let i = 0; i < 3; i++){
+            const heart = new ScreenElement({
+                pos: vec(40 + i*40, 30),
+                width: 30,
+                height: 30,
+                color: Color.Red
+            });
+            this.hearts.push(heart);
+            this.add(heart);
+        }
 
         // Adicionar Subpastas para proteger
         const folder1 = new SubFolder('as_fotos_da_festa_ficaram_otimas', vec((w / 2) - 90, (h / 2) - 80));
@@ -108,7 +122,17 @@ export class MyLevel extends Scene {
 
     override onDeactivate(context: SceneActivationContext): void {}
 
-    override onPreUpdate(engine: Engine, elapsedMs: number): void {}
+    override onPreUpdate(engine: Engine, elapsedMs: number): void {
+        // barra de hp do player
+        for (let i = 0; i < this.hearts.length; i++){
+            if (i < this.player.getHp()){
+                this.hearts[i].graphics.opacity = 1;
+            }
+            else{
+                this.hearts[i].graphics.opacity = 0;
+            }
+        }
+    }
 
     override onPostUpdate(engine: Engine, elapsedMs: number): void {}
 

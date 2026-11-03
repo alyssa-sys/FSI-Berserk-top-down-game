@@ -1,14 +1,17 @@
 
-import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType } from "excalibur";
+import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
-import { Virus } from "../actors/virus";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
   private fire_cd: number = 0;
   private hp: number = 3;
   private invul: number = 0;
+
+  getHp(): number{ // hp do player
+    return this.hp;
+  }
 
   constructor() {
     super({
