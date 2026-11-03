@@ -2,6 +2,7 @@ import { Actor, DefaultLoader, Engine, ExcaliburGraphicsContext, Rectangle, Colo
 import { Player } from "../actors/player";
 // import { Bullet } from "../actors/bullet";
 import { SubFolder } from "../actors/subfolder";
+import { Virus } from "..//actors/virus";
  
 export class MyLevel extends Scene {
     public subFolders: SubFolder[] = [];
@@ -41,6 +42,11 @@ export class MyLevel extends Scene {
         this.subFolders.push(folder1, folder2);
         this.add(folder1);
         this.add(folder2);
+
+
+        // adicionar um virus de teste nascendo na parte inferior da tela
+        const testVirus = new Virus(vec(w / 2, h - 100));
+        this.add(testVirus);
     }
 
     private createBoundaryWalls(w: number, h: number, thickness: number): void {
