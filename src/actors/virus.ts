@@ -5,6 +5,7 @@ import { SubFolder } from "../actors/subfolder";
 export class Virus extends Bug {
     private target: Actor | null = null;
     private healthBar: Actor | null = null;
+    private touchingFolder: SubFolder | null = null;
     
 
     constructor(pos: Vector) {
@@ -62,17 +63,45 @@ export class Virus extends Bug {
         this.addChild(this.healthBar);
     }
 
+    // Detecta quando encosta na pasta
+    override onCollisionStart(_self: Collider, other: Collider): void {
+        super.onCollisionStart(_self, other);
+
+        if (other.owner instanceof SubFolder) {
+            this.touchingFolder = other.owner;
+        }
+    }
+
+    // Detecta quando se afasta da pasta
+    override onCollisionEnd(_self: Collider, other: Collider): void {
+        if (other.owner instanceof SubFolder && other.owner === this.touchingFolder) {
+            this.touchingFolder = null;
+        }
+    }
+
     override update(engine: Engine, delta: number): void {
         super.update(engine, delta);
 
         const currentScene = engine.currentScene as any;
 
+        // Se está encostado em uma pasta ativa, causa infecção continuamente
+        if (this.touchingFolder && !this.touchingFolder.isKilled() && !this.touchingFolder.isInfected) {
+            this.stop();
+            this.touchingFolder.infectOverTime(delta);
+            return;
+        }
+
+        // Se a pasta em que estava encostado foi destruída/totalmente infectada
+        if (this.touchingFolder && (this.touchingFolder.isKilled() || this.touchingFolder.isInfected)) {
+            this.touchingFolder = null;
+        }
+
         if (currentScene && currentScene.subFolders && currentScene.subFolders.length > 0) {
             const activeFolders = currentScene.subFolders.filter((f: SubFolder) => !f.isKilled() && !f.isInfected);
 
             if (activeFolders.length > 0) {
-                if (!this.target || this.target.isKilled()) {
-                    let closestFolder: Actor | null = null;
+                if (!this.target || this.target.isKilled() || (this.target instanceof SubFolder && this.target.isInfected)) {
+                    let closestFolder: SubFolder | null = null;
                     let minDistance = Infinity;
 
                     for (const folder of activeFolders) {
@@ -90,17 +119,8 @@ export class Virus extends Bug {
         }
 
         // Se houver um alvo válido, move-se em direção ou causa dano se estiver encostado
-        if (this.target && this.target instanceof SubFolder) {
-            const distance = this.pos.distance(this.target.pos);
-
-            // Se estiver a uma distância de toque (aproximadamente metade do tamanho de ambos)
-            if (distance <= 44) { 
-                this.stop();
-                // Causa infecção contínua baseada no tempo delta (delta em milissegundos)
-                this.target.infectOverTime(delta);
-            } else {
-                this.moveToward(this.target.pos);
-            }
+        if (this.target) {
+            this.moveToward(this.target.pos);
         } else {
             this.stop();
         }
