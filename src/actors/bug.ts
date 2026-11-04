@@ -1,12 +1,14 @@
-import { Actor, ActorArgs, CollisionType, Vector } from "excalibur";
+import { Actor, ActorArgs, Collider, CollisionType, Vector } from "excalibur";
 import { Player } from "./player";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
+    hp: number;
 };
 
 export abstract class Bug extends Actor {
     protected speed: number;
+    protected hp: number;
     private player: Player | null = null;
 
     constructor(config: BugConfig) {
@@ -15,7 +17,32 @@ export abstract class Bug extends Actor {
             ...config
         });
         this.speed = config.speed;
+        this.hp = config.hp;
     }
+
+    override onCollisionStart(_self: Collider, other: Collider): void {
+        const bullet = other.owner;
+        if (bullet && bullet.name === 'Bullet' && !bullet.isKilled()) {
+            bullet.kill();     
+            this.takeDamage(1);
+        }
+    }
+
+    public takeDamage(amount: number = 1): void {
+        if (this.isKilled()) return;
+        this.hp -= amount;
+        this.actions
+            .callMethod(() => { this.graphics.opacity = 0.3; })
+            .delay(80)
+            .callMethod(() => { this.graphics.opacity = 1; });
+
+        if (this.hp <= 0) {
+            this.onDeath();
+            this.kill();
+        }
+    }
+
+    protected onDeath(): void {}
 
     protected getPlayer(): Player | null {
         if (this.player && !this.player.isKilled()) {
