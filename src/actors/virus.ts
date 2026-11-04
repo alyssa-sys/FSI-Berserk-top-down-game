@@ -1,17 +1,21 @@
-import { Actor, Vector, Color, Rectangle, Engine, CollisionType, Collider, CollisionContact, Side } from "excalibur";
+import { Actor, Vector, Color, Rectangle, Engine, CollisionType, Collider, CollisionContact, Side, Canvas } from "excalibur";
+import { Bug } from "./bug"
 import { SubFolder } from "../actors/subfolder";
 
-export class Virus extends Actor {
+export class Virus extends Bug {
     private target: Actor | null = null;
-    private speed: number = 70;  // velocidade de perseguição do virus
+    private healthBar: Actor | null = null;
     
 
     constructor(pos: Vector) {
         super({
+            name: 'Virus',
             pos: pos,
             width: 24,
             height: 24,
-            collisionType: CollisionType.Active // Permite que ele colida com paredes e subpastas
+            speed: 70,
+            // collisionType: CollisionType.Active // Permite que ele colida com paredes e subpastas
+            hp: 3
         });
     }
 
@@ -23,6 +27,39 @@ export class Virus extends Actor {
             height: 24,
             color: Color.fromHex('#ff4d4d')
         }));
+
+        // Barra de vida
+        const barWidth = 24;
+        const barHeight = 4;
+
+        this.healthBar = new Actor({
+            pos: new Vector(0, -18), // posicionamento da barra de vida um pouco acima do virus
+            width: barWidth,
+            height: barHeight
+        });
+
+        // desenho e atualizacao dinamica da barra de vida a cada frame
+        this.healthBar.onPreUpdate = () => {
+            const hpRatio = Math.max(0, this.hp / 3); // calcula a proporção da vida (0 a 1)
+
+            this.healthBar?.graphics.use(
+                new Canvas({
+                    width: barWidth,
+                    height: barHeight,
+                    draw: (ctx) => {
+                        // fundo da barra (vermelho para vida perdida)
+                        ctx.fillStyle = '#ff0000';
+                        ctx.fillRect(0, 0, barWidth, barHeight);
+
+                        // vida atual (verde)
+                        ctx.fillStyle = '#00ff00'
+                        ctx.fillRect(0, 0, barWidth * hpRatio, barHeight);
+                    }
+                })
+            );
+        };
+        // adiciona barra como filha para acompanhar o movimento do virus
+        this.addChild(this.healthBar);
     }
 
     override update(engine: Engine, delta: number): void {
@@ -30,7 +67,7 @@ export class Virus extends Actor {
 
         const currentScene = engine.currentScene as any;
 
-        // garante que temos acesso às subpastas da fase
+        // logica pra encontrar e perseguir a subpasta ativa mais próxima
         if (currentScene && currentScene.subFolders && currentScene.subFolders.length > 0) {
             // Filtra apenas as pastas que ainda estão ativas/vivas
             const activeFolders = currentScene.subFolders.filter((f: SubFolder) => !f.isKilled());
