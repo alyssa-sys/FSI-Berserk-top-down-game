@@ -63,17 +63,14 @@ export class Virus extends Bug {
     }
 
     override update(engine: Engine, delta: number): void {
-        super.update(engine, delta); // Importante para manter o ciclo de vida padrão do Actor
+        super.update(engine, delta);
 
         const currentScene = engine.currentScene as any;
 
-        // logica pra encontrar e perseguir a subpasta ativa mais próxima
         if (currentScene && currentScene.subFolders && currentScene.subFolders.length > 0) {
-            // Filtra apenas as pastas que ainda estão ativas/vivas
-            const activeFolders = currentScene.subFolders.filter((f: SubFolder) => !f.isKilled());
+            const activeFolders = currentScene.subFolders.filter((f: SubFolder) => !f.isKilled() && !f.isInfected);
 
             if (activeFolders.length > 0) {
-                // se não tem alvo ou o alvo atual morreu, acha a subpasta mais próxima
                 if (!this.target || this.target.isKilled()) {
                     let closestFolder: Actor | null = null;
                     let minDistance = Infinity;
@@ -92,20 +89,21 @@ export class Virus extends Bug {
             }
         }
 
-        // Se houver um alvo válido, move-se em direção a ele
-        if (this.target) {
-            const direction = this.target.pos.sub(this.pos);
-            const distance = direction.distance();
+        // Se houver um alvo válido, move-se em direção ou causa dano se estiver encostado
+        if (this.target && this.target instanceof SubFolder) {
+            const distance = this.pos.distance(this.target.pos);
 
-            if (distance > 2) {
-                // Normaliza o vetor e multiplica pela velocidade para marchar até a pasta
-                this.vel = direction.normalize().scale(this.speed);
+            // Se estiver a uma distância de toque (aproximadamente metade do tamanho de ambos)
+            if (distance <= 44) { 
+                this.stop();
+                // Causa infecção contínua baseada no tempo delta (delta em milissegundos)
+                this.target.infectOverTime(delta);
             } else {
-                this.vel = Vector.Zero;
+                this.moveToward(this.target.pos);
             }
         } else {
-            // Se não houver nenhuma subpasta no mapa, ele fica parado
-            this.vel = Vector.Zero;
+            this.stop();
         }
+    
     }
 }

@@ -60,6 +60,27 @@ export class SubFolder extends Actor {
         this.addChild(this.healthBar);
     }
 
+    // Causa dano contínuo baseado em tempo real
+    // 100% de dano em 60.000 ms (1 minuto) -> 100 / 60000 = ~0.001666% por ms
+    public infectOverTime(elapsedMs: number): void {
+        if (this.isInfected) return;
+
+        const ratePerMs = 100 / 60000; // 100% dividido por 60 segundos (em ms)
+        this.infectionLevel += ratePerMs * elapsedMs;
+
+        if (this.infectionLevel >= 100) {
+            this.infectionLevel = 100;
+            this.isInfected = true;
+
+            // Fica vermelha quando totalmente corrompida
+            this.graphics.use(new Rectangle({
+                width: 64,
+                height: 64,
+                color: Color.Red
+            }));
+        }
+    }
+
     // Método pra corromper pastas quando o vírus chega nelas
     public infect(amount: number = 5): void {
         if (this.isInfected) return;
