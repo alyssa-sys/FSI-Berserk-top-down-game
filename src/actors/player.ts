@@ -72,8 +72,8 @@ export class Player extends Actor {
     
     // comando de tiro (barra de espaço)
 
-    if(engine.input.keyboard.isHeld(Keys.Space) && this.fire_cd <=0){
-      const bullet = new Bullet(this.pos.clone(), this.direction.clone());
+    if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
+      const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
       this.fire_cd = 120;
       this.scene?.add(bullet);
     }
