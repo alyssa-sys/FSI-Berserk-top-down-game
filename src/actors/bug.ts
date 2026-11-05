@@ -1,5 +1,6 @@
 import { Actor, ActorArgs, Collider, CollisionType, Vector } from "excalibur";
 import { Player } from "./player";
+import { HeartPickup } from "./heart_pickup";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -42,7 +43,13 @@ export abstract class Bug extends Actor {
         }
     }
 
-    protected onDeath(): void {}
+    protected onDeath(): void {
+        const drop_chance = Math.random(); // chance de drop do coração
+        if(drop_chance >= 0.80){
+            const heart_drop = new HeartPickup(this.pos.clone());
+            this.scene?.add(heart_drop);
+        }
+    }
 
     protected getPlayer(): Player | null {
         if (this.player && !this.player.isKilled()) {

@@ -77,7 +77,8 @@ export class Player extends Actor {
       this.fire_cd = 120;
       this.scene?.add(bullet);
     }
-    this.vel = direcao.scale(200);
+
+    this.vel = direcao.scale(250); // velocidade do player
   }
 
   override onPostUpdate(engine: Engine, elapsedMs: number): void {
@@ -96,6 +97,11 @@ export class Player extends Actor {
     }
     if (this.hp <= 0){
       this.kill();
+    }
+
+    if (other.owner?.hasTag("heal")){
+      this.hp = Math.min(this.hp + 1, 3)
+      other.owner?.kill()
     }
   }
 

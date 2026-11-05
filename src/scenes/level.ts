@@ -5,6 +5,7 @@ import { SubFolder } from "../actors/subfolder";
 import { Virus } from "..//actors/virus";
 import { BigBug } from "../actors/bigbug";
 import { SmallBug } from "../actors/smallbug";
+import { HeartPickup } from "../actors/heart_pickup";
  
 export class MyLevel extends Scene {
     public subFolders: SubFolder[] = [];
