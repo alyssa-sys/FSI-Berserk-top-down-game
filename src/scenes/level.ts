@@ -15,6 +15,7 @@ export class MyLevel extends Scene {
     private hearts: ScreenElement[] = [];
     private player!: Player;
 
+    // guarda a posicao das portas geradas
     private doorPositions: Vector[] = [];
 
     override onInitialize(engine: Engine): void {
@@ -37,6 +38,7 @@ export class MyLevel extends Scene {
         }));
         this.add(background);
 
+        // escolhe 3 paredes aleatorias para terem portas
         const doorSides = this.getRandomDoorSides(3);
 
         // Criar as paredes das bordas (com "backdoors")
@@ -113,7 +115,11 @@ export class MyLevel extends Scene {
             this.createWallSegment(vec(w - (segmentWidth / 2), thickness / 2), segmentWidth, thickness, wallColor);
 
             // ponto central da abertura superior
-            this.doorPositions.push(vec(w / 2, thickness / 2));
+            const doorPos = vec(w / 2, thickness / 2);
+            this.doorPositions.push(doorPos);
+
+            // barreira invisivel na borda superior
+            this.createInvisibleBarrier(vec(w / 2, -thickness / 2), doorSize, thickness);
         } else {
             this.createWallSegment(vec(w / 2, thickness / 2), w, thickness, wallColor);
         }
@@ -125,7 +131,11 @@ export class MyLevel extends Scene {
             this.createWallSegment(vec(w - (segmentWidth / 2), h - thickness / 2), segmentWidth, thickness, wallColor);
 
             // ponto central da abertura inferior
-            this.doorPositions.push(vec(w / 2, h - thickness / 2));
+            const doorPos = vec(w / 2, h - thickness / 2);
+            this.doorPositions.push(doorPos);
+
+            // barreira invisivel na borda inferior
+            this.createInvisibleBarrier(vec(w / 2, h + thickness / 2), doorSize, thickness);
         } else {
             this.createWallSegment(vec(w / 2, h - thickness / 2), w, thickness, wallColor);
         }
@@ -138,7 +148,11 @@ export class MyLevel extends Scene {
             this.createWallSegment(vec(thickness / 2, h - thickness - (segmentHeight / 2)), thickness, segmentHeight, wallColor);
 
             // ponto central da abertura lateral esquerda
-            this.doorPositions.push(vec(thickness / 2, h / 2));
+            const doorPos = vec(thickness / 2, h / 2);
+            this.doorPositions.push(doorPos);
+
+            // barreira invisivel na borda lateral esquerda
+            this.createInvisibleBarrier(vec(-thickness / 2, h / 2), thickness, doorSize);
         } else {
             this.createWallSegment(vec(thickness / 2, h / 2), thickness, availableHeight, wallColor);
         }
@@ -150,7 +164,11 @@ export class MyLevel extends Scene {
             this.createWallSegment(vec(w - thickness / 2, h - thickness - (segmentHeight / 2)), thickness, segmentHeight, wallColor);
 
             // ponto central da abertura lateral direita
-            this.doorPositions.push(vec(w - thickness / 2, h / 2));
+            const doorPos = vec(w - thickness / 2, h / 2);
+            this.doorPositions.push(doorPos);
+
+            // barreira invisivel na borda lateral direita
+            this.createInvisibleBarrier(vec(w + thickness / 2, h / 2), thickness, doorSize);
         } else {
             this.createWallSegment(vec(w - thickness / 2, h / 2), thickness, availableHeight, wallColor);
         }
@@ -166,6 +184,18 @@ export class MyLevel extends Scene {
         });
         wall.graphics.use(new Rectangle({ width, height, color }));
         this.add(wall);
+    }
+
+    // cria uma parede física totalmente transparente fora do mapa
+    private createInvisibleBarrier(pos: Vector, width: number, height: number): void {
+        const barrier = new Actor({
+            pos: pos,
+            width: width,
+            height: height,
+            collisionType: CollisionType.Fixed
+        });
+        // Não adiciona grafico a parede, ela é 100% invisível
+        this.add(barrier);
     }
 
     override onPreLoad(loader: DefaultLoader): void {}
