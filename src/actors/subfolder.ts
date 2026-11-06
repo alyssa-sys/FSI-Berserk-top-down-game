@@ -1,4 +1,4 @@
-import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine } from "excalibur";
+import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine, Text, Font, TextAlign } from "excalibur";
 
 export class SubFolder extends Actor {
     public folderName: string;
@@ -63,6 +63,44 @@ export class SubFolder extends Actor {
         };
         // adiciona a barra como filho da pasta
         this.addChild(this.healthBar);
+
+        // Cria o rotulo da pasta (o nome embaixo dela)
+        const labelText = new Text({
+            text: this.folderName,
+            color: Color.White,
+            font: new Font({
+                size: 12,
+                texAlign: TextAlign.Center
+            }),
+        });
+
+        const labelActor = new Actor({
+            pos: new Vector(0, 52) // posiciona o nome abaixo do quadro
+        });
+
+        labelActor.graphics.use(labelText);
+        labelActor.graphics.current.origin = Vector.Half;
+
+        this.addChild(labelActor);
+    }
+
+    // Função auxiliar para quebrar texto em linhas sem cortar palavras
+    private wrapTextByWords(text: string, maxCharsPerLine: number): string {
+        const words = text.split(' ');
+        let currentLine = '';
+        const lines: string[] = [];
+
+        for (const word of words) {
+            if ((currentLine + word).length > maxCharsPerLine) {
+                if (currentLine) lines.push(currentLine.trim());
+                currentLine = word + ' ';
+            } else {
+                currentLine += word + ' ';
+            }
+        }
+        if (currentLine) lines.push(currentLine.trim());
+
+        return lines.join('\n');
     }
 
     // Causa dano contínuo baseado em tempo real

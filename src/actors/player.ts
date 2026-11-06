@@ -72,12 +72,13 @@ export class Player extends Actor {
     
     // comando de tiro (barra de espaço)
 
-    if(engine.input.keyboard.isHeld(Keys.Space) && this.fire_cd <=0){
-      const bullet = new Bullet(this.pos.clone(), this.direction.clone());
+    if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
+      const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
       this.fire_cd = 120;
       this.scene?.add(bullet);
     }
-    this.vel = direcao.scale(200);
+
+    this.vel = direcao.scale(250); // velocidade do player
   }
 
   override onPostUpdate(engine: Engine, elapsedMs: number): void {
@@ -96,6 +97,11 @@ export class Player extends Actor {
     }
     if (this.hp <= 0){
       this.kill();
+    }
+
+    if (other.owner?.hasTag("heal")){
+      this.hp = Math.min(this.hp + 1, 3)
+      other.owner?.kill()
     }
   }
 
