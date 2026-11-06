@@ -1,8 +1,8 @@
-import { Actor, DefaultLoader, Engine, ExcaliburGraphicsContext, Rectangle, Color, Scene, SceneActivationContext, ScreenElement, vec, CollisionType, Vector, } from "excalibur";
+import { Actor, DefaultLoader, Engine, ExcaliburGraphicsContext, Rectangle, Color, Scene, SceneActivationContext, ScreenElement, vec, CollisionType, Vector, Timer } from "excalibur";
 import { Player } from "../actors/player";
 // import { Bullet } from "../actors/bullet";
 import { SubFolder } from "../actors/subfolder";
-import { Virus } from "..//actors/virus";
+import { Virus } from "../actors/virus";
 import { BigBug } from "../actors/bigbug";
 import { SmallBug } from "../actors/smallbug";
 // import { HeartPickup } from "../actors/heart_pickup";
@@ -17,6 +17,7 @@ export class MyLevel extends Scene {
 
     // guarda a posicao das portas geradas
     private doorPositions: Vector[] = [];
+    private virusSpawnerTimer!: Timer;
 
     override onInitialize(engine: Engine): void {
         const thickness = 32;
@@ -72,6 +73,20 @@ export class MyLevel extends Scene {
 
         // virus nascem de portas aleatorias
         this.spawnVirusInRandomDoor();
+
+        // spawna virus a cada 30s
+        this.virusSpawnerTimer = new Timer({
+            flicker: false,
+            interval: 5000, // 5.000ms = 5s
+            repeats: true,
+            fcn: () => {
+                this.spawnVirusInRandomDoor();
+            }
+        });
+
+        // adiciona o virus e inicia o timer
+        this.add(this.virusSpawnerTimer);
+        this.virusSpawnerTimer.start();
 
         // bugs de teste
         this.add(new BigBug(vec(w / 2, 90)));
