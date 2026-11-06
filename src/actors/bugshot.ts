@@ -18,7 +18,7 @@ export class BugShot extends Actor {
     override onInitialize(): void {
         this.addTag('enemy');
         this.graphics.use(new Circle({ radius: 6, color: Color.fromHex('#d946ef')}));
-        this.vel = this.direction.normalize().scale(220);
+        this.vel = this.direction.normalize().scale(260);
         this.actions.delay(3000).die();
     }
 

@@ -5,8 +5,8 @@ import { SmallBug } from "./smallbug";
 
 export class BigBug extends Bug {
     private readonly keepDistance: number = 220;   
-    private readonly shootRange: number = 350;     
-    private readonly shootCooldown: number = 2000; 
+    private readonly shootRange: number = 400;     
+    private readonly shootCooldown: number = 1800; 
     private shootTimer: number = 1000;             
 
     constructor(pos: Vector) {
@@ -15,8 +15,8 @@ export class BigBug extends Bug {
             pos: pos,
             width: 56,
             height: 56,
-            speed: 45,
-            hp: 6
+            speed: 55,
+            hp: 10
         });
     }
 
@@ -56,6 +56,7 @@ export class BigBug extends Bug {
     }
 
     protected override onDeath(): void {
+        super.onDeath();
         const scene = this.scene;
         if (!scene) return;
         scene.add(new SmallBug(this.pos.add(vec(-24, 0))));
