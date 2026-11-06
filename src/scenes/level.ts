@@ -1,16 +1,21 @@
-import { Actor, DefaultLoader, Engine, ExcaliburGraphicsContext, Rectangle, Color, Scene, SceneActivationContext, ScreenElement, vec, CollisionType, } from "excalibur";
+import { Actor, DefaultLoader, Engine, ExcaliburGraphicsContext, Rectangle, Color, Scene, SceneActivationContext, ScreenElement, vec, CollisionType, Vector, } from "excalibur";
 import { Player } from "../actors/player";
 // import { Bullet } from "../actors/bullet";
 import { SubFolder } from "../actors/subfolder";
 import { Virus } from "..//actors/virus";
 import { BigBug } from "../actors/bigbug";
 import { SmallBug } from "../actors/smallbug";
-import { HeartPickup } from "../actors/heart_pickup";
+// import { HeartPickup } from "../actors/heart_pickup";
  
+
+type WallSide = 'top' | 'bottom' | 'left' | 'right'; 
+
 export class MyLevel extends Scene {
     public subFolders: SubFolder[] = [];
     private hearts: ScreenElement[] = [];
     private player!: Player;
+
+    private doorPositions: Vector[] = [];
 
     override onInitialize(engine: Engine): void {
         const thickness = 32;
@@ -32,8 +37,10 @@ export class MyLevel extends Scene {
         }));
         this.add(background);
 
+        const doorSides = this.getRandomDoorSides(3);
+
         // Criar as paredes das bordas (com "backdoors")
-        this.createBoundaryWalls(w, h, thickness);
+        this.createBoundaryWallsWithDoors(w, h, thickness, doorSides);
 
         // Adicionar jogador
         this.player = new Player(); // hiago: troquei const player para this.player devido a mecanica de hp
@@ -53,17 +60,16 @@ export class MyLevel extends Scene {
         }
 
         // Adicionar Subpastas para proteger
-        const folder1 = new SubFolder('as_fotos_da_festa_ficaram_otimas', vec((w / 2) - 90, (h / 2) - 80));
-        const folder2 = new SubFolder('trabalho_fsi_final_agora_vai_prometo_', vec((w / 2) + 90, (h / 2) - 80));
+        const folder1 = new SubFolder('as fotos da festa ficaram otimas', vec((w / 2) - 90, (h / 2) - 80));
+        const folder2 = new SubFolder('trabalho fsi final agora vai prometo ', vec((w / 2) + 90, (h / 2) - 80));
 
         this.subFolders.push(folder1, folder2);
         this.add(folder1);
         this.add(folder2);
 
 
-        // adicionar um virus de teste nascendo na parte inferior da tela
-        const testVirus = new Virus(vec(w / 2, h - 100));
-        this.add(testVirus);
+        // virus nascem de portas aleatorias
+        this.spawnVirusInRandomDoor();
 
         // bugs de teste
         this.add(new BigBug(vec(w / 2, 90)));
@@ -71,50 +77,95 @@ export class MyLevel extends Scene {
         this.add(new SmallBug(vec(w - 100, 100)));
     }
 
-    private createBoundaryWalls(w: number, h: number, thickness: number): void {
+    // metodo para instanciar um vírus em uma das portas sorteadas
+    public spawnVirusInRandomDoor(): void{
+        if (this.doorPositions.length === 0) return;
 
-        // Parede superior
-        const topWall = new Actor({
-            pos: vec(w / 2, thickness / 2),
-            width: w,
-            height: thickness,
+        // Escolhe uma porta aleatoria
+        const randomIndex = Math.floor(Math.random() * this.doorPositions.length);
+        const spawnPoint = this.doorPositions[randomIndex];
+
+        const virus = new Virus(spawnPoint);
+        this.add(virus);
+    }
+
+    // Funcao que escolhe N lados aleatorios
+    private getRandomDoorSides(count: number): Set<WallSide> {
+        const allSides: WallSide[] = ['top', 'bottom', 'left', 'right'];
+        const selected = new Set<WallSide>();
+
+        while (selected.size < count) {
+            const randomIndex = Math.floor(Math.random() * allSides.length);
+            selected.add(allSides[randomIndex]);
+        }
+        return selected;
+    }
+
+    private createBoundaryWallsWithDoors(w: number, h: number, thickness: number, doorSides: Set<WallSide>): void {
+        const wallColor = Color.DarkGray;
+        const doorSize = 80; // Vão livre da abertura para passagem (80px)
+        this.doorPositions = [];
+
+        // --- PAREDE SUPERIOR ---
+        if (doorSides.has('top')) {
+            const segmentWidth = (w - doorSize) / 2;
+            this.createWallSegment(vec(segmentWidth / 2, thickness / 2), segmentWidth, thickness, wallColor);
+            this.createWallSegment(vec(w - (segmentWidth / 2), thickness / 2), segmentWidth, thickness, wallColor);
+
+            // ponto central da abertura superior
+            this.doorPositions.push(vec(w / 2, thickness / 2));
+        } else {
+            this.createWallSegment(vec(w / 2, thickness / 2), w, thickness, wallColor);
+        }
+
+        // --- PAREDE INFERIOR ---
+        if (doorSides.has('bottom')) {
+            const segmentWidth = (w - doorSize) / 2;
+            this.createWallSegment(vec(segmentWidth / 2, h - thickness / 2), segmentWidth, thickness, wallColor);
+            this.createWallSegment(vec(w - (segmentWidth / 2), h - thickness / 2), segmentWidth, thickness, wallColor);
+
+            // ponto central da abertura inferior
+            this.doorPositions.push(vec(w / 2, h - thickness / 2));
+        } else {
+            this.createWallSegment(vec(w / 2, h - thickness / 2), w, thickness, wallColor);
+        }
+
+        // --- PAREDE ESQUERDA ---
+        const availableHeight = h - (thickness * 2);
+        if (doorSides.has('left')) {
+            const segmentHeight = (availableHeight - doorSize) / 2;
+            this.createWallSegment(vec(thickness / 2, thickness + (segmentHeight / 2)), thickness, segmentHeight, wallColor);
+            this.createWallSegment(vec(thickness / 2, h - thickness - (segmentHeight / 2)), thickness, segmentHeight, wallColor);
+
+            // ponto central da abertura lateral esquerda
+            this.doorPositions.push(vec(thickness / 2, h / 2));
+        } else {
+            this.createWallSegment(vec(thickness / 2, h / 2), thickness, availableHeight, wallColor);
+        }
+
+        // --- PAREDE DIREITA ---
+        if (doorSides.has('right')) {
+            const segmentHeight = (availableHeight - doorSize) / 2;
+            this.createWallSegment(vec(w - thickness / 2, thickness + (segmentHeight / 2)), thickness, segmentHeight, wallColor);
+            this.createWallSegment(vec(w - thickness / 2, h - thickness - (segmentHeight / 2)), thickness, segmentHeight, wallColor);
+
+            // ponto central da abertura lateral direita
+            this.doorPositions.push(vec(w - thickness / 2, h / 2));
+        } else {
+            this.createWallSegment(vec(w - thickness / 2, h / 2), thickness, availableHeight, wallColor);
+        }
+    }
+
+    // Método auxiliar para criar cada pedaço de parede sólida
+    private createWallSegment(pos: any, width: number, height: number, color: Color): void {
+        const wall = new Actor({
+            pos: pos,
+            width: width,
+            height: height,
             collisionType: CollisionType.Fixed
         });
-        topWall.graphics.use(new Rectangle({ width: w, height: thickness, color: Color.DarkGray }));
-        this.add(topWall);
-
-
-        // Parede inferior
-        const bottomWall = new Actor({
-            pos: vec(w / 2, h - thickness / 2),
-            width: w,
-            height: thickness,
-            collisionType: CollisionType.Fixed
-        });
-        bottomWall.graphics.use(new Rectangle({ width: w, height: thickness, color: Color.DarkGray }));
-        this.add(bottomWall);
-
-
-        // Parede esquerda
-        const leftWall = new Actor({
-            pos: vec(thickness / 2, h / 2),
-            width: thickness,
-            height: h - (thickness * 2),
-            collisionType: CollisionType.Fixed
-        });
-        leftWall.graphics.use(new Rectangle({ width: thickness, height: h - (thickness * 2), color: Color.DarkGray }));
-        this.add(leftWall);
-
-
-        // Parede direita
-        const rightWall = new Actor({
-            pos: vec(w - thickness / 2, h / 2),
-            width: thickness,
-            height: h - (thickness * 2),
-            collisionType: CollisionType.Fixed
-        });
-        rightWall.graphics.use(new Rectangle({ width: thickness, height: h - (thickness * 2), color: Color.DarkGray }));
-        this.add(rightWall);
+        wall.graphics.use(new Rectangle({ width, height, color }));
+        this.add(wall);
     }
 
     override onPreLoad(loader: DefaultLoader): void {}
