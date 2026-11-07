@@ -2,6 +2,7 @@ import { Collider, Vector} from "excalibur";
 import { Bug} from "./bug";
 import { Explosion } from "./explosion";
 import { Player } from "./player";
+import { Resources } from "../config/resources";
 
 export class SmallBug extends Bug {
     constructor(pos: Vector) {
@@ -17,9 +18,9 @@ export class SmallBug extends Bug {
 
     override onInitialize(): void {
         this.setupGlitch({
-            size: 26,
-            colors: ['#ffe14d', '#19e6ff', '#ff7a1a', '#ffffff'],
-            shapes: ['triangle', 'diamond', 'square']
+            image: Resources.SmallBug,
+            frameSize: 32,
+            shapeCount: 3
         });
     }
 

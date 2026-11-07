@@ -3,6 +3,7 @@ import { Bug } from "./bug";
 import { BugShot } from "./bugshot";
 import { SmallBug } from "./smallbug";
 import { Player } from "./player";
+import { Resources } from "../config/resources";
 
 export class BigBug extends Bug {
     private readonly keepDistance: number = 220;  
@@ -26,9 +27,9 @@ export class BigBug extends Bug {
     override onInitialize(): void {
         this.addTag('enemy');
         this.setupGlitch({
-            size: 56,
-            colors: ['#ff2bd6', '#19e6ff', '#8a2bff', '#ffe14d'],
-            shapes: ['square', 'hexagon', 'diamond', 'pentagon', 'circle']
+            image: Resources.BigBug,
+            frameSize: 64,
+            shapeCount: 5
         });
     }
 

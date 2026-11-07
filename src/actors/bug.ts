@@ -60,8 +60,7 @@ export abstract class Bug extends Actor {
     }
 
     protected setupGlitch(options: GlitchOptions): void {
-        this.glitch = new GlitchFx(options);
-        this.graphics.use(this.glitch.graphic);
+        this.glitch = new GlitchFx(options, this.graphics);
     }
 
     protected getPlayer(): Player | null {
