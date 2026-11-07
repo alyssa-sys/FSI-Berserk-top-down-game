@@ -2,6 +2,7 @@
 import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
+import { ScoreManager } from "../managers/score_manager";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
@@ -95,9 +96,16 @@ export class Player extends Actor {
       this.hp -= 1;
       this.invul = 2000;
     }
-    if (this.hp <= 0){
+    if (this.hp <= 0) {
+      const engine = this.scene?.engine;
+
       this.kill();
+      
+      if (engine) {
+        engine.goToScene('gameover');
+      }
     }
+    
 
     if (other.owner?.hasTag("heal")){
       this.hp = Math.min(this.hp + 1, 3)

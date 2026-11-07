@@ -2,6 +2,7 @@ import { Engine, Vector, vec } from "excalibur";
 import { Bug } from "./bug";
 import { BugShot } from "./bugshot";
 import { SmallBug } from "./smallbug";
+import { ScoreManager } from "../managers/score_manager";
 import { Player } from "./player";
 import { Resources } from "../config/resources";
 
@@ -77,6 +78,8 @@ export class BigBug extends Bug {
     }
 
     protected override onDeath(): void {
+        ScoreManager.getInstance().addPoints(1);
+
         super.onDeath(); 
         const scene = this.scene;
         if (!scene) return;

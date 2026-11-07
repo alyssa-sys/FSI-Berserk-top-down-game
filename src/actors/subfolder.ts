@@ -1,4 +1,4 @@
-import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine, Text, Font, TextAlign } from "excalibur";
+import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine } from "excalibur";
 
 export class SubFolder extends Actor {
     public folderName: string;
@@ -42,7 +42,6 @@ export class SubFolder extends Actor {
 
         //desenho e atualizacao da barra a cada frame
         this.healthBar.onPreUpdate = () => {
-            // A vida restante é a porcentagem oposta ao nível de infecção (100% - infectionLevel)
             const healthRatio = Math.max(0, (100 - this.infectionLevel) / 100);
 
             this.healthBar?.graphics.use(
@@ -50,59 +49,19 @@ export class SubFolder extends Actor {
                     width: barWidth,
                     height: barHeight,
                     draw: (ctx) => {
-                        //Fundo da barra (vermelho para a parte corrompida)
-                        ctx.fillStyle = 'ff0000';
-                        ctx.fillRect(0, 0, barWidth * healthRatio, barHeight);
+                        ctx.fillStyle = '#ff0000';
+                        ctx.fillRect(0, 0, barWidth, barHeight);
 
-                        // vida atual (verde)
-                        ctx.fillStyle = '#00ff00'
+                        ctx.fillStyle = '#00ff00';
                         ctx.fillRect(0, 0, barWidth * healthRatio, barHeight);
                     }
                 })
             );
         };
-        // adiciona a barra como filho da pasta
         this.addChild(this.healthBar);
 
-        // Cria o rotulo da pasta (o nome embaixo dela)
-        const labelText = new Text({
-            text: this.folderName,
-            color: Color.White,
-            font: new Font({
-                size: 12,
-                texAlign: TextAlign.Center
-            }),
-        });
-
-        const labelActor = new Actor({
-            pos: new Vector(0, 52) // posiciona o nome abaixo do quadro
-        });
-
-        labelActor.graphics.use(labelText);
-        labelActor.graphics.current.origin = Vector.Half;
-
-        this.addChild(labelActor);
+        
     }
-
-    // Função auxiliar para quebrar texto em linhas sem cortar palavras
-    private wrapTextByWords(text: string, maxCharsPerLine: number): string {
-        const words = text.split(' ');
-        let currentLine = '';
-        const lines: string[] = [];
-
-        for (const word of words) {
-            if ((currentLine + word).length > maxCharsPerLine) {
-                if (currentLine) lines.push(currentLine.trim());
-                currentLine = word + ' ';
-            } else {
-                currentLine += word + ' ';
-            }
-        }
-        if (currentLine) lines.push(currentLine.trim());
-
-        return lines.join('\n');
-    }
-
     // Causa dano contínuo baseado em tempo real
     // 100% de dano em 60.000 ms (1 minuto) -> 100 / 60000 = ~0.001666% por ms
     public infectOverTime(elapsedMs: number): void {
@@ -114,6 +73,8 @@ export class SubFolder extends Actor {
         if (this.infectionLevel >= 100) {
             this.infectionLevel = 100;
             this.isInfected = true;
+            this.triggerGameOver();
+
         }
             // Fica vermelha quando totalmente corrompida
             this.updateFolderColor();
@@ -150,8 +111,17 @@ export class SubFolder extends Actor {
         if (this.infectionLevel >= 100) {
             this.infectionLevel = 100;
             this.isInfected = true;
+            this.triggerGameOver();
         }
 
         this.updateFolderColor();
     }
+
+        private triggerGameOver(): void {
+        const engine = this.scene?.engine;
+        if(engine) {
+            engine.goToScene('gameover');
+        }
+    }
 }
+

@@ -1,6 +1,7 @@
 import { Actor, ActorArgs, Collider, CollisionType, Engine, Vector } from "excalibur";
 import { Player } from "./player";
 import { HeartPickup } from "./heart_pickup";
+import { ScoreManager } from "../managers/score_manager";
 import { GlitchFx, GlitchOptions } from "./glitchfx";
 
 export type BugConfig = ActorArgs & {
@@ -52,7 +53,9 @@ export abstract class Bug extends Actor {
     }
 
     protected onDeath(): void {
-        const drop_chance = Math.random(); // chance de drop do coração
+        ScoreManager.getInstance().addPoints(2);
+
+        const drop_chance = Math.random();
         if(drop_chance >= 0.80){
             const heart_drop = new HeartPickup(this.pos.clone());
             this.scene?.add(heart_drop);
