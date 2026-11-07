@@ -1,4 +1,3 @@
-
 import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
@@ -74,11 +73,11 @@ export class Player extends Actor {
 
     if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
       const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
-      this.fire_cd = 120;
+      this.fire_cd = 300; // cadência de tiros
       this.scene?.add(bullet);
     }
 
-    this.vel = direcao.scale(250); // velocidade do player
+    this.vel = direcao.scale(200); // velocidade do player
   }
 
   override onPostUpdate(engine: Engine, elapsedMs: number): void {
@@ -93,7 +92,7 @@ export class Player extends Actor {
   override onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
     if (other.owner?.hasTag("enemy") && this.invul <= 0){ // verificar se o player tomou hit do inimigo
       this.hp -= 1;
-      this.invul = 2000;
+      this.invul = 200;
     }
     if (this.hp <= 0){
       this.kill();

@@ -195,6 +195,7 @@ export class MyLevel extends Scene {
             collisionType: CollisionType.Fixed
         });
         wall.graphics.use(new Rectangle({ width, height, color }));
+        wall.addTag('wall_col'); // hiago: tag para colisão da bala
         this.add(wall);
     }
 
@@ -207,6 +208,7 @@ export class MyLevel extends Scene {
             collisionType: CollisionType.Fixed
         });
         // Não adiciona grafico a parede, ela é 100% invisível
+        barrier.addTag('barrier_col') // hiago: tag para colisão da bala
         this.add(barrier);
     }
 

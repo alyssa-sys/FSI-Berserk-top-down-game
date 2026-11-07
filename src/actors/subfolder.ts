@@ -15,6 +15,7 @@ export class SubFolder extends Actor {
             height: 64,
             collisionType: CollisionType.Fixed // estática no cenario bloqueando colisoes
         });
+        this.addTag('folder_col'); // hiago: tag de colisão com a bala
         this.folderName = name;
 
         // Guarda a referencia da pasta pra atualizar a cor progressivamente
