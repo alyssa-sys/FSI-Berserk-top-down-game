@@ -114,6 +114,8 @@ export class SubFolder extends Actor {
         if (this.infectionLevel >= 100) {
             this.infectionLevel = 100;
             this.isInfected = true;
+            this.triggerGameOver();
+
         }
             // Fica vermelha quando totalmente corrompida
             this.updateFolderColor();
@@ -150,8 +152,17 @@ export class SubFolder extends Actor {
         if (this.infectionLevel >= 100) {
             this.infectionLevel = 100;
             this.isInfected = true;
+            this.triggerGameOver();
         }
 
         this.updateFolderColor();
     }
+
+        private triggerGameOver(): void {
+        const engine = this.scene?.engine;
+        if(engine) {
+            engine.goToScene('gameover');
+        }
+    }
 }
+

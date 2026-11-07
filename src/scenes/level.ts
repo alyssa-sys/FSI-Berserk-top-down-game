@@ -87,5 +87,23 @@ export class MyLevel extends Scene {
                 this.hearts[i].graphics.opacity = (i < this.player.getHp()) ? 1 : 0;
             }
         }
+        
+        // checa gamen over pelas pastas
+        const pastaDestruida = this.subFolders.some(folder => folder.isInfected || folder.isKilled());
+
+        if (pastaDestruida) {
+            this.triggerGameOver();
+
+        }
+    }
+
+    private triggerGameOver(): void {
+        //para o spawn de novos inimigos
+        if (this.spawnerManager) {
+            this.spawnerManager.stop();
+        }
+
+        // vai pra tela de game over
+        this.engine.goToScene('gameover');
     }
 }
