@@ -3,13 +3,14 @@ import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
 import { PlayerGroup } from "../config/collision-group";
 import { Rocket } from "./weapons/rocket";
+import { Beam } from "./weapons/beam";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
   private fire_cd: number = 0;
   private hp: number = 3;
   private invul: number = 0;
-  private weapon: 'bullet' | 'rocket' = 'bullet';
+  private weapon: 'bullet' | 'rocket' | 'beam' = 'bullet';
 
   getHp(): number{ // hp do player
     return this.hp;
@@ -90,6 +91,13 @@ export class Player extends Actor {
         this.fire_cd = 1000; // cadência de tiros
         this.scene?.add(rocket);
       }
+
+      // raio laser
+      if(this.weapon == 'beam'){
+        const beam = new Beam(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
+        this.fire_cd = 1200; // cadência de tiros
+        this.scene?.add(beam);
+      }
     }
 
     this.vel = direcao.scale(200); // velocidade do player
@@ -120,6 +128,11 @@ export class Player extends Actor {
 
     if (other.owner?.hasTag("rocket")) {
       this.weapon = 'rocket';
+      other.owner.kill();
+    }
+
+    if (other.owner?.hasTag("beam")) {
+      this.weapon = 'beam';
       other.owner.kill();
     }
   }

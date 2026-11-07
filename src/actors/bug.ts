@@ -4,6 +4,7 @@ import { HeartPickup } from "./pickups/heart_pickup";
 import { EnemyGroup } from "../config/collision-group";
 import { RocketExplosion } from './rocket-explosion';
 import { RocketPickup } from "./pickups/rocket_pickup";
+import { BeamPickup } from "./pickups/beam_pickup";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -48,6 +49,10 @@ export abstract class Bug extends Actor {
                 this.takeDamage(2);
             } 
         }
+         // raio laser
+        if (hitbox.name === 'Beam') {   
+            this.takeDamage(0.2);
+        }
 
     }
 
@@ -74,6 +79,10 @@ export abstract class Bug extends Actor {
         else if(drop_chance >= 0.60){
             const rocket_drop = new RocketPickup(this.pos.clone());
             this.scene?.add(rocket_drop);
+        }
+         else if(drop_chance >= 0.40){
+            const beam_pickup = new BeamPickup(this.pos.clone());
+            this.scene?.add(beam_pickup);
         }
     }
 

@@ -1,4 +1,4 @@
-import { Vector, Actor, Color, CollisionType, Collider, Side, CollisionContact, CollisionGroup } from "excalibur";
+import { Vector, Actor, Color, CollisionType, Collider, Side, CollisionContact } from "excalibur";
 import { BulletGroup } from "../../config/collision-group";
 import { RocketExplosion } from "../rocket-explosion";
 
