@@ -2,12 +2,14 @@ import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, Col
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
 import { PlayerGroup } from "../config/collision-group";
+import { Rocket } from "./weapons/rocket";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
   private fire_cd: number = 0;
   private hp: number = 3;
   private invul: number = 0;
+  private weapon: string = 'rocket';
 
   getHp(): number{ // hp do player
     return this.hp;
@@ -74,9 +76,19 @@ export class Player extends Actor {
     // comando de tiro (barra de espaço)
 
     if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
-      const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
-      this.fire_cd = 350; // cadência de tiros
-      this.scene?.add(bullet);
+
+      // balas padrão
+      /*if(this.weapon == 'bullet'){ 
+        const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
+        this.fire_cd = 350; // cadência de tiros
+        this.scene?.add(bullet);
+      }*/
+      // lança mísseis
+      if(this.weapon == 'rocket'){
+        const rocket = new Rocket(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
+        this.fire_cd = 1000; // cadência de tiros
+        this.scene?.add(rocket);
+      }
     }
 
     this.vel = direcao.scale(200); // velocidade do player

@@ -1,7 +1,8 @@
 import { Actor, ActorArgs, Collider, CollisionType, Engine, Vector } from "excalibur";
 import { Player } from "./player";
-import { HeartPickup } from "./heart_pickup";
+import { HeartPickup } from "./pickups/heart_pickup";
 import { EnemyGroup } from "../config/collision-group";
+import { RocketExplosion } from './rocket-explosion';
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -24,16 +25,29 @@ export abstract class Bug extends Actor {
             ...config,
             collisionGroup: EnemyGroup
         });
+        this.addTag('enemy');
         this.speed = config.speed;
         this.hp = config.hp;
     }
 
     override onCollisionStart(_self: Collider, other: Collider): void {
-        const bullet = other.owner;
-        if (bullet && bullet.name === 'Bullet' && !bullet.isKilled()) {
-            bullet.kill();     
+        // detectar se o inimigo foi atingido (hitbox)
+         const hitbox = other.owner;
+         if (!hitbox || hitbox.isKilled()) 
+            return;
+
+        // bala comum
+        if (hitbox.name === 'Bullet') {
+            hitbox.kill();     
             this.takeDamage(1);
         }
+        // lança mísseis
+        else if (hitbox instanceof RocketExplosion) {
+            if (hitbox.hitEnemy(this)) {
+                this.takeDamage(2);
+            } 
+        }
+
     }
 
     public takeDamage(amount: number = 1): void {
