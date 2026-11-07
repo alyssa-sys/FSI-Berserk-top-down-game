@@ -9,7 +9,7 @@ export class Player extends Actor {
   private fire_cd: number = 0;
   private hp: number = 3;
   private invul: number = 0;
-  private weapon: string = 'rocket';
+  private weapon: 'bullet' | 'rocket' = 'bullet';
 
   getHp(): number{ // hp do player
     return this.hp;
@@ -78,11 +78,12 @@ export class Player extends Actor {
     if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
 
       // balas padrão
-      /*if(this.weapon == 'bullet'){ 
+      if(this.weapon == 'bullet'){ 
         const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
         this.fire_cd = 350; // cadência de tiros
         this.scene?.add(bullet);
-      }*/
+      }
+
       // lança mísseis
       if(this.weapon == 'rocket'){
         const rocket = new Rocket(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
@@ -112,13 +113,14 @@ export class Player extends Actor {
       this.kill();
     }
 
-    if (other.owner?.hasTag("heal")){
+    if (other.owner?.hasTag("heal")){ // pegar drop de cura
       this.hp = Math.min(this.hp + 1, 3)
       other.owner?.kill()
     }
 
-    if (other.owner?.hasTag('bullet_hitbox')){
-      this.onCollisionEnd
+    if (other.owner?.hasTag("rocket")) {
+      this.weapon = 'rocket';
+      other.owner.kill();
     }
   }
 

@@ -3,6 +3,7 @@ import { Player } from "./player";
 import { HeartPickup } from "./pickups/heart_pickup";
 import { EnemyGroup } from "../config/collision-group";
 import { RocketExplosion } from './rocket-explosion';
+import { RocketPickup } from "./pickups/rocket_pickup";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -65,10 +66,14 @@ export abstract class Bug extends Actor {
     }
 
     protected onDeath(): void {
-        const drop_chance = Math.random(); // chance de drop do coração
-        if(drop_chance >= 0.80){
+        const drop_chance = Math.random(); // resultado da chance de drop do coração e armas
+        if(drop_chance >= 0.85){
             const heart_drop = new HeartPickup(this.pos.clone());
             this.scene?.add(heart_drop);
+        }
+        else if(drop_chance >= 0.60){
+            const rocket_drop = new RocketPickup(this.pos.clone());
+            this.scene?.add(rocket_drop);
         }
     }
 
