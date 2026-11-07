@@ -63,6 +63,13 @@ export class Virus extends Bug {
         this.addChild(this.healthBar);
     }
 
+    protected override onDeath(): void {
+        const scene = this.scene as any;
+        if (scene?.scoreManager) {
+            scene.scoreManager.addPoints(1); // Garante +1 ponto quando o Vírus morrer
+        }
+    }
+
     // Detecta quando encosta na pasta
     override onCollisionStart(_self: Collider, other: Collider): void {
         super.onCollisionStart(_self, other);

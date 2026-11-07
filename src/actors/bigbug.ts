@@ -56,7 +56,11 @@ export class BigBug extends Bug {
     }
 
     protected override onDeath(): void {
-        const scene = this.scene;
+        const scene = this.scene as any;
+        if (scene?.scoreManager) {
+            scene.scoreManager.addPoints(1); // 1 ponto ao dividir
+        }
+
         if (!scene) return;
         scene.add(new SmallBug(this.pos.add(vec(-24, 0))));
         scene.add(new SmallBug(this.pos.add(vec(24, 0))));

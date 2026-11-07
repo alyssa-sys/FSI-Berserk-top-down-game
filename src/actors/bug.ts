@@ -44,7 +44,12 @@ export abstract class Bug extends Actor {
     }
 
     protected onDeath(): void {
-        const drop_chance = Math.random(); // chance de drop do coração
+        const scene = this.scene as any;
+        if (scene?.scoreManager) {
+            scene.scoreManager.addPoints(2);
+        }
+
+        const drop_chance = Math.random();
         if(drop_chance >= 0.80){
             const heart_drop = new HeartPickup(this.pos.clone());
             this.scene?.add(heart_drop);
