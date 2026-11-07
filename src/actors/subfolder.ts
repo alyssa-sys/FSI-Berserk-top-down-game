@@ -1,4 +1,5 @@
-import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine, Text, Font, TextAlign } from "excalibur";
+import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine, Text, Font, TextAlign, CollisionGroup } from "excalibur";
+import { EnemyGroup, StructureGroup } from "../config/collision-group";
 
 export class SubFolder extends Actor {
     public folderName: string;
@@ -13,7 +14,8 @@ export class SubFolder extends Actor {
             pos: pos,
             width: 64,
             height: 64,
-            collisionType: CollisionType.Fixed // estática no cenario bloqueando colisoes
+            collisionType: CollisionType.Fixed, // estática no cenario bloqueando colisoes
+            collisionGroup: StructureGroup 
         });
         this.addTag('folder_col'); // hiago: tag de colisão com a bala
         this.folderName = name;

@@ -1,6 +1,7 @@
-import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement } from "excalibur";
+import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement, CollisionGroup } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
+import { PlayerGroup } from "../config/collision-group";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
@@ -18,7 +19,8 @@ export class Player extends Actor {
       pos: vec(150, 150),
       width: 50,
       height: 50,
-      collisionType: CollisionType.Active // Garante que ele colida com paredes e subpastas
+      collisionType: CollisionType.Active, // Garante que ele colida com paredes e subpastas
+      collisionGroup: PlayerGroup
     });
     
   }
@@ -73,7 +75,7 @@ export class Player extends Actor {
 
     if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
       const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
-      this.fire_cd = 300; // cadência de tiros
+      this.fire_cd = 350; // cadência de tiros
       this.scene?.add(bullet);
     }
 
@@ -101,6 +103,10 @@ export class Player extends Actor {
     if (other.owner?.hasTag("heal")){
       this.hp = Math.min(this.hp + 1, 3)
       other.owner?.kill()
+    }
+
+    if (other.owner?.hasTag('bullet_hitbox')){
+      this.onCollisionEnd
     }
   }
 

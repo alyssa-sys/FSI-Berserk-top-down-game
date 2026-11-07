@@ -1,4 +1,5 @@
-import { Vector, Actor, Color, CollisionType, Collider, Side, CollisionContact } from "excalibur";
+import { Vector, Actor, Color, CollisionType, Collider, Side, CollisionContact, CollisionGroup } from "excalibur";
+import { BulletGroup } from "../config/collision-group";
 
 export class Bullet extends Actor {
   private direcao: Vector;
@@ -9,9 +10,11 @@ export class Bullet extends Actor {
       height: 10,
       color: Color.Yellow,
       pos: posicao,
-      collisionType: CollisionType.Active
+      collisionType: CollisionType.Active,
+      collisionGroup: BulletGroup
     });
     this.direcao = direcao;
+    this.addTag('bullet_hitbox');
   }
 
   override onInitialize() {

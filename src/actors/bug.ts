@@ -1,6 +1,7 @@
 import { Actor, ActorArgs, Collider, CollisionType, Engine, Vector } from "excalibur";
 import { Player } from "./player";
 import { HeartPickup } from "./heart_pickup";
+import { EnemyGroup } from "../config/collision-group";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -20,7 +21,8 @@ export abstract class Bug extends Actor {
     constructor(config: BugConfig) {
         super({
             collisionType: CollisionType.Active,
-            ...config
+            ...config,
+            collisionGroup: EnemyGroup
         });
         this.speed = config.speed;
         this.hp = config.hp;
