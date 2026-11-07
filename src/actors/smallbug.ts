@@ -10,8 +10,8 @@ export class SmallBug extends Bug {
             pos: pos,
             width: 20,
             height: 20,
-            speed: 130,
-            hp: 2
+            speed: 170,
+            hp: 3
         });
     }
 
