@@ -14,9 +14,15 @@ export class MyLevel extends Scene {
     private hearts: ScreenElement[] = [];
     private player!: Player;
 
-    override onInitialize(engine: Engine): void {
-        const w = 800;
-        const h = 600;
+    override onActivate(_context: SceneActivationContext<unknown>): void {
+        // limpa todos os atores anteriores quando reinicia o jogo
+        this.clear();
+        this.subFolders = [];
+        this.hearts = [];
+
+        const engine = this.engine;
+        const w = engine.drawWidth;
+        const h = engine.drawHeight;
         const thickness = 32;
 
         // constroi mapa e portas
@@ -24,14 +30,14 @@ export class MyLevel extends Scene {
         const doorPositions = MapBuilder.buildMapWithDoors(this, w, h, thickness, doorSides);
 
         // inicializar ScoreManager
-        this.scoreManager = new ScoreManager(w);
-        this.add(this.scoreManager.getLabel());
+        const scoreLabel = ScoreManager.getInstance().init(w);
+        this.add(scoreLabel);
 
-        // inicializar SpawnerManager (Vírus a cada 30s)
+        // inicializar SpawnerManager (virus a cada 30s)
         this.spawnerManager = new SpawnerManager(this, doorPositions);
         this.spawnerManager.start();
 
-        // adicionar Player
+        // adicionar player
         this.player = new Player();
         this.player.pos = vec(w / 2, (h / 2) + 100);
         this.add(this.player);
@@ -68,8 +74,10 @@ export class MyLevel extends Scene {
     }
 
     override onPreUpdate(_engine: Engine, _elapsedMs: number): void {
-        for (let i = 0; i < this.hearts.length; i++) {
-            this.hearts[i].graphics.opacity = (i < this.player.getHp()) ? 1 : 0;
+        if (this.player && !this.player.isKilled()) {
+            for (let i = 0; i < this.hearts.length; i++) {
+                this.hearts[i].graphics.opacity = (i < this.player.getHp()) ? 1 : 0;
+            }
         }
     }
 }

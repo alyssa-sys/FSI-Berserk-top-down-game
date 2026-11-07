@@ -1,6 +1,7 @@
 import { Actor, ActorArgs, Collider, CollisionType, Vector } from "excalibur";
 import { Player } from "./player";
 import { HeartPickup } from "./heart_pickup";
+import { ScoreManager } from "../managers/score_manager";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -44,10 +45,7 @@ export abstract class Bug extends Actor {
     }
 
     protected onDeath(): void {
-        const scene = this.scene as any;
-        if (scene?.scoreManager) {
-            scene.scoreManager.addPoints(2);
-        }
+        ScoreManager.getInstance().addPoints(2);
 
         const drop_chance = Math.random();
         if(drop_chance >= 0.80){

@@ -1,6 +1,7 @@
 import { Color, DisplayMode, Engine, FadeInOut } from "excalibur";
 import { loader } from "./config/resources";
 import { MyLevel } from "./scenes/level";
+import { GameOverScene } from "./scenes/game_over";
 
 
 
@@ -11,7 +12,8 @@ const game = new Engine({
   pixelArt: true, 
   backgroundColor: Color.Black,
   scenes: {
-    start: MyLevel
+    start: MyLevel,
+    gameover: GameOverScene
   }
   
 });

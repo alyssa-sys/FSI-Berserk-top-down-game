@@ -2,6 +2,7 @@ import { Color, Engine, Rectangle, Vector, vec } from "excalibur";
 import { Bug } from "./bug";
 import { BugShot } from "./bugshot";
 import { SmallBug } from "./smallbug";
+import { ScoreManager } from "../managers/score_manager";
 
 export class BigBug extends Bug {
     private readonly keepDistance: number = 220;   
@@ -56,11 +57,9 @@ export class BigBug extends Bug {
     }
 
     protected override onDeath(): void {
-        const scene = this.scene as any;
-        if (scene?.scoreManager) {
-            scene.scoreManager.addPoints(1); // 1 ponto ao dividir
-        }
+        ScoreManager.getInstance().addPoints(1);
 
+        const scene = this.scene;
         if (!scene) return;
         scene.add(new SmallBug(this.pos.add(vec(-24, 0))));
         scene.add(new SmallBug(this.pos.add(vec(24, 0))));

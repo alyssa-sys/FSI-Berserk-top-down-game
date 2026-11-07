@@ -1,6 +1,7 @@
 import { Actor, Vector, Color, Rectangle, Engine, CollisionType, Collider, CollisionContact, Side, Canvas } from "excalibur";
 import { Bug } from "./bug"
 import { SubFolder } from "../actors/subfolder";
+import { ScoreManager } from "../managers/score_manager";
 
 export class Virus extends Bug {
     private target: Actor | null = null;
@@ -64,10 +65,8 @@ export class Virus extends Bug {
     }
 
     protected override onDeath(): void {
-        const scene = this.scene as any;
-        if (scene?.scoreManager) {
-            scene.scoreManager.addPoints(1); // Garante +1 ponto quando o Vírus morrer
-        }
+        ScoreManager.getInstance().addPoints(1);
+    
     }
 
     // Detecta quando encosta na pasta
