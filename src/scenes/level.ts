@@ -6,6 +6,12 @@ import { SmallBug } from "../actors/smallbug";
 import { ScoreManager } from "../managers/score_manager";
 import { SpawnerManager } from "../managers/spawner_manager";
 import { MapBuilder } from "../utils/map_builder";
+// import { Virus } from "../actors/virus";
+import { BugSpawner } from "../actors/bugspawner";
+// import { HeartPickup } from "../actors/heart_pickup";
+ 
+
+type WallSide = 'top' | 'bottom' | 'left' | 'right'; 
 
 export class MyLevel extends Scene {
     public subFolders: SubFolder[] = [];
@@ -65,6 +71,8 @@ export class MyLevel extends Scene {
         this.add(new BigBug(vec(w / 2, 90)));
         this.add(new SmallBug(vec(100, 100)));
         this.add(new SmallBug(vec(w - 100, 100)));
+
+        
     }
 
     override onDeactivate(_context: SceneActivationContext): void {
