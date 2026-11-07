@@ -1,4 +1,4 @@
-import { Color, Engine, Rectangle, Vector, vec } from "excalibur";
+import { Engine, Vector, vec } from "excalibur";
 import { Bug } from "./bug";
 import { BugShot } from "./bugshot";
 import { SmallBug } from "./smallbug";
@@ -10,9 +10,7 @@ export class BigBug extends Bug {
     private readonly shootCooldown: number = 1800; 
     private readonly chargeTime: number = 350;     
     private readonly aimLead: number = 0.7;        
-    private readonly baseColor: Color = Color.fromHex('#9d4edd');
     private shootTimer: number = 1000;             
-    private sprite!: Rectangle;
 
     constructor(pos: Vector) {
         super({
@@ -27,19 +25,17 @@ export class BigBug extends Bug {
 
     override onInitialize(): void {
         this.addTag('enemy');
-        this.sprite = new Rectangle({
-            width: 56,
-            height: 56,
-            color: this.baseColor
+        this.setupGlitch({
+            size: 56,
+            colors: ['#ff2bd6', '#19e6ff', '#8a2bff', '#ffe14d'],
+            shapes: ['square', 'hexagon', 'diamond', 'pentagon', 'circle']
         });
-        this.graphics.use(this.sprite);
     }
 
     override onPreUpdate(_engine: Engine, elapsedMs: number): void {
         const player = this.getPlayer();
         if (!player) {
             this.stop();
-            this.sprite.color = this.baseColor;
             return;
         }
 
@@ -60,15 +56,14 @@ export class BigBug extends Bug {
 
         // aviso: pisca em branco nos últimos 350 ms antes do tiro
         const charging = inRange && this.shootTimer <= this.chargeTime;
-        this.sprite.color = (charging && Math.floor(this.shootTimer / 70) % 2 === 0)
-            ? Color.White
-            : this.baseColor;
+        this.glitch?.setIntensity(charging ? 1 : 0);
+        this.glitch?.setFlash(charging && Math.floor(this.shootTimer / 70) % 2 === 0);
 
         // ataque à distância
         if (inRange && this.shootTimer <= 0) {
             this.shoot(player);
             this.shootTimer = this.shootCooldown;
-            this.sprite.color = this.baseColor;
+            this.glitch?.setFlash(false);
         }
     }
 

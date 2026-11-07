@@ -1,4 +1,4 @@
-import { Collider, Color, Rectangle, Vector} from "excalibur";
+import { Collider, Vector} from "excalibur";
 import { Bug} from "./bug";
 import { Explosion } from "./explosion";
 import { Player } from "./player";
@@ -16,17 +16,18 @@ export class SmallBug extends Bug {
     }
 
     override onInitialize(): void {
-        this.graphics.use(new Rectangle({
-            width: 20,
-            height: 20,
-            color: Color.fromHex('#ff9f1c')
-        }));
+        this.setupGlitch({
+            size: 26,
+            colors: ['#ffe14d', '#19e6ff', '#ff7a1a', '#ffffff'],
+            shapes: ['triangle', 'diamond', 'square']
+        });
     }
 
     override onPreUpdate(): void {
         const player = this.getPlayer();
         if (player) {
             this.moveToward(player.pos);
+            this.glitch?.setIntensity(1 - this.pos.distance(player.pos) / 160);
         } else {
             this.stop();
         }
