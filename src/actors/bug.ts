@@ -2,9 +2,6 @@ import { Actor, ActorArgs, Collider, CollisionType, Engine, Vector } from "excal
 import { Player } from "./player";
 import { HeartPickup } from "./pickups/heart_pickup";
 import { EnemyGroup } from "../config/collision-group";
-import { RocketExplosion } from './rocket-explosion';
-import { RocketPickup } from "./pickups/rocket_pickup";
-import { BeamPickup } from "./pickups/beam_pickup";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -43,16 +40,6 @@ export abstract class Bug extends Actor {
             hitbox.kill();     
             this.takeDamage(1);
         }
-        // lança mísseis
-        else if (hitbox instanceof RocketExplosion) {
-            if (hitbox.hitEnemy(this)) {
-                this.takeDamage(2);
-            } 
-        }
-         // raio laser
-        if (hitbox.name === 'Beam') {   
-            this.takeDamage(0.2);
-        }
 
     }
 
@@ -75,14 +62,6 @@ export abstract class Bug extends Actor {
         if(drop_chance >= 0.85){
             const heart_drop = new HeartPickup(this.pos.clone());
             this.scene?.add(heart_drop);
-        }
-        else if(drop_chance >= 0.60){
-            const rocket_drop = new RocketPickup(this.pos.clone());
-            this.scene?.add(rocket_drop);
-        }
-         else if(drop_chance >= 0.40){
-            const beam_pickup = new BeamPickup(this.pos.clone());
-            this.scene?.add(beam_pickup);
         }
     }
 

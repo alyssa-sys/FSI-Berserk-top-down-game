@@ -2,8 +2,6 @@ import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, Col
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
 import { PlayerGroup } from "../config/collision-group";
-import { Rocket } from "./weapons/rocket";
-import { Beam } from "./weapons/beam";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
@@ -74,29 +72,15 @@ export class Player extends Actor {
       this.direction = direcao.clone();
     }
     
-    // comando de tiro (barra de espaço)
+    // comando de tiro (mouse)
 
     if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
 
       // balas padrão
       if(this.weapon == 'bullet'){ 
         const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
-        this.fire_cd = 350; // cadência de tiros
+        this.fire_cd = 450; // cadência de tiros
         this.scene?.add(bullet);
-      }
-
-      // lança mísseis
-      if(this.weapon == 'rocket'){
-        const rocket = new Rocket(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
-        this.fire_cd = 1000; // cadência de tiros
-        this.scene?.add(rocket);
-      }
-
-      // raio laser
-      if(this.weapon == 'beam'){
-        const beam = new Beam(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
-        this.fire_cd = 1200; // cadência de tiros
-        this.scene?.add(beam);
       }
     }
 
