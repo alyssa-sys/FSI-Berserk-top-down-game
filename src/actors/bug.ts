@@ -17,6 +17,8 @@ export abstract class Bug extends Actor {
     private stuckTime: number = 0;
     private detourTime: number = 0;
     private detourSide: number = 1;
+    private static hp_droptime: number = -20000;
+    private static readonly hp_drop_cd = 20000;
 
     constructor(config: BugConfig) {
         super({
@@ -58,10 +60,17 @@ export abstract class Bug extends Actor {
     }
 
     protected onDeath(): void {
+        // verifica se já passou o cooldown de 20 segundos
+        const now = Date.now(); 
+        if (now - Bug.hp_droptime < Bug.hp_drop_cd) {
+            return;
+        }
+
         const drop_chance = Math.random(); // resultado da chance de drop do coração e armas
         if(drop_chance >= 0.85){
             const heart_drop = new HeartPickup(this.pos.clone());
             this.scene?.add(heart_drop);
+            Bug.hp_droptime = now;
         }
     }
 
