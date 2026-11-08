@@ -20,8 +20,8 @@ export class BigBug extends Bug {
             pos: pos,
             width: 56,
             height: 56,
-            speed: 55,
-            hp: 10
+            speed: 60,
+            hp: 6
         });
     }
 
