@@ -1,6 +1,7 @@
 import { Actor, Vector, Color, Rectangle, Engine, CollisionType, Collider, CollisionContact, Side, Canvas } from "excalibur";
 import { Bug } from "./bug"
 import { SubFolder } from "../actors/subfolder";
+import { ScoreManager } from "../managers/score_manager";
 
 export class Virus extends Bug {
     private target: Actor | null = null;
@@ -61,6 +62,11 @@ export class Virus extends Bug {
         };
         // adiciona barra como filha para acompanhar o movimento do virus
         this.addChild(this.healthBar);
+    }
+
+    protected override onDeath(): void {
+        ScoreManager.getInstance().addPoints(1);
+    
     }
 
     // Detecta quando encosta na pasta

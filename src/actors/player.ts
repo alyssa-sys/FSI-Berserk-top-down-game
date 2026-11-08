@@ -1,6 +1,7 @@
-import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement, CollisionGroup } from "excalibur";
+import { Actor, Collider, SpriteSheet, Animation, AnimationStrategy, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement, CollisionGroup } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
+import { ScoreManager } from "../managers/score_manager";
 import { PlayerGroup } from "../config/collision-group";
 
 export class Player extends Actor {
@@ -9,6 +10,8 @@ export class Player extends Actor {
   private hp: number = 3;
   private invul: number = 0;
   private weapon: 'bullet' | 'rocket' | 'beam' = 'bullet';
+  private walkAnim!: Animation;
+  private idleAnim!: Animation;
 
   getHp(): number{ // hp do player
     return this.hp;
@@ -27,10 +30,15 @@ export class Player extends Actor {
   }
 
   override onInitialize() {
-    this.graphics.add(Resources.Sword.toSprite()); // placeholder
-    this.on('pointerdown', evt => {
-      console.log('You clicked the actor @', evt.worldPos.toString());
+    const sheet = SpriteSheet.fromImageSource({
+      image: Resources.PlayerSheet, grid: { rows: 1, columns: 5, spriteWidth: 64, spriteHeight: 80 } 
     });
+    this.walkAnim = Animation.fromSpriteSheet(sheet, [0, 1, 2, 3, 4], 120, AnimationStrategy.Loop);
+    this.idleAnim = Animation.fromSpriteSheet(sheet, [0], 1000, AnimationStrategy.Loop);
+
+    this.graphics.add('walk', this.walkAnim);
+    this.graphics.add('idle', this.idleAnim);
+    this.graphics.use('idle');
   }
 
   override onPreUpdate(engine: Engine, elapsedMs: number): void {
@@ -71,6 +79,9 @@ export class Player extends Actor {
       direcao = direcao.normalize();
       this.direction = direcao.clone();
     }
+    this.graphics.use(direcao.magnitude > 0 ? 'walk' : 'idle');
+    if (direcao.x < 0) this.graphics.flipHorizontal = true;
+    else if (direcao.x > 0) this.graphics.flipHorizontal = false;
     
     // comando de tiro (mouse)
 
@@ -101,11 +112,18 @@ export class Player extends Actor {
       this.hp -= 1;
       this.invul = 200;
     }
-    if (this.hp <= 0){
-      this.kill();
-    }
+    if (this.hp <= 0) {
+      const engine = this.scene?.engine;
 
-    if (other.owner?.hasTag("heal")){ // pegar drop de cura
+      this.kill();
+      
+      if (engine) {
+        engine.goToScene('gameover');
+      }
+    }
+    
+
+    if (other.owner?.hasTag("heal")){
       this.hp = Math.min(this.hp + 1, 3)
       other.owner?.kill()
     }

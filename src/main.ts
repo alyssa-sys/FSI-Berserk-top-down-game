@@ -1,19 +1,25 @@
 import { Color, DisplayMode, Engine, FadeInOut } from "excalibur";
 import { loader } from "./config/resources";
 import { MyLevel } from "./scenes/level";
+import { GameOverScene } from "./scenes/game_over";
 
 
 
 const game = new Engine({
-  width: 800, // Largura lógica do jogo
-  height: 600, // Altura lógica do jogo
-  displayMode: DisplayMode.FitScreen, // Mantém a proporção 4:3 sem distorcer
+  width: 800,  // Resolução fixa da arena
+  height: 600,
+  displayMode: DisplayMode.FitScreen, // Redimensiona o jogo proporcionalmente sem cortar
   pixelArt: true, 
   backgroundColor: Color.Black,
   scenes: {
-    start: MyLevel
+    start: MyLevel,
+    gameover: GameOverScene
   }
-  
+});
+
+// força o viewport da câmera a se atualizar sempre que a janela for redimensionada
+window.addEventListener('resize', () => {
+  game.screen.applyResolutionAndViewport();
 });
 
 game.start('start', { 

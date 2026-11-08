@@ -1,7 +1,9 @@
 import { Actor, ActorArgs, Collider, CollisionType, Engine, Vector } from "excalibur";
 import { Player } from "./player";
 import { HeartPickup } from "./pickups/heart_pickup";
+import { ScoreManager } from "../managers/score_manager";
 import { EnemyGroup } from "../config/collision-group";
+import { GlitchFx, GlitchOptions } from "./glitchfx";
 
 export type BugConfig = ActorArgs & {
     speed: number; 
@@ -12,6 +14,7 @@ export abstract class Bug extends Actor {
     protected speed: number;
     protected hp: number;
     private player: Player | null = null;
+    protected glitch: GlitchFx | null = null;
     private moving: boolean = false;
     private lastPos: Vector = Vector.Zero;
     private stuckTime: number = 0;
@@ -48,6 +51,7 @@ export abstract class Bug extends Actor {
     public takeDamage(amount: number = 1): void {
         if (this.isKilled()) return;
         this.hp -= amount;
+        this.glitch?.pulse(250);
         this.actions
             .callMethod(() => { this.graphics.opacity = 0.3; })
             .delay(80)
@@ -60,18 +64,25 @@ export abstract class Bug extends Actor {
     }
 
     protected onDeath(): void {
-        // verifica se já passou o cooldown de 20 segundos
-        const now = Date.now(); 
+        ScoreManager.getInstance().addPoints(2);
+        
+        const now = Date.now();
+        // Verifica o cooldown global
         if (now - Bug.hp_droptime < Bug.hp_drop_cd) {
             return;
         }
 
-        const drop_chance = Math.random(); // resultado da chance de drop do coração e armas
-        if(drop_chance >= 0.85){
+        const drop_chance = Math.random();
+        if(drop_chance >= 0.80){
             const heart_drop = new HeartPickup(this.pos.clone());
             this.scene?.add(heart_drop);
             Bug.hp_droptime = now;
         }
+    }
+
+    protected setupGlitch(options: GlitchOptions): void {
+        this.glitch = new GlitchFx(options);
+        this.graphics.use(this.glitch.graphic);
     }
 
     protected getPlayer(): Player | null {
@@ -105,6 +116,7 @@ export abstract class Bug extends Actor {
     }
 
     override onPostUpdate(_engine: Engine, elapsedMs: number): void {
+        this.glitch?.update(elapsedMs);
        if (this.detourTime > 0) {
         this.detourTime -= elapsedMs;
        }
