@@ -1,14 +1,17 @@
-
-import { Actor, Collider, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement } from "excalibur";
+import { Actor, Collider, SpriteSheet, Animation, AnimationStrategy, CollisionContact, Engine, Side, vec, Vector, Keys, CollisionType, ScreenElement, CollisionGroup } from "excalibur";
 import { Resources } from "../config/resources";
 import { Bullet } from "../actors/bullet";
 import { ScoreManager } from "../managers/score_manager";
+import { PlayerGroup } from "../config/collision-group";
 
 export class Player extends Actor {
   private direction: Vector = vec(1, 0);
   private fire_cd: number = 0;
   private hp: number = 3;
   private invul: number = 0;
+  private weapon: 'bullet' | 'rocket' | 'beam' = 'bullet';
+  private walkAnim!: Animation;
+  private idleAnim!: Animation;
 
   getHp(): number{ // hp do player
     return this.hp;
@@ -20,16 +23,22 @@ export class Player extends Actor {
       pos: vec(150, 150),
       width: 50,
       height: 50,
-      collisionType: CollisionType.Active // Garante que ele colida com paredes e subpastas
+      collisionType: CollisionType.Active, // Garante que ele colida com paredes e subpastas
+      collisionGroup: PlayerGroup
     });
     
   }
 
   override onInitialize() {
-    this.graphics.add(Resources.Sword.toSprite()); // placeholder
-    this.on('pointerdown', evt => {
-      console.log('You clicked the actor @', evt.worldPos.toString());
+    const sheet = SpriteSheet.fromImageSource({
+      image: Resources.PlayerSheet, grid: { rows: 1, columns: 5, spriteWidth: 64, spriteHeight: 80 } 
     });
+    this.walkAnim = Animation.fromSpriteSheet(sheet, [0, 1, 2, 3, 4], 120, AnimationStrategy.Loop);
+    this.idleAnim = Animation.fromSpriteSheet(sheet, [0], 1000, AnimationStrategy.Loop);
+
+    this.graphics.add('walk', this.walkAnim);
+    this.graphics.add('idle', this.idleAnim);
+    this.graphics.use('idle');
   }
 
   override onPreUpdate(engine: Engine, elapsedMs: number): void {
@@ -70,16 +79,23 @@ export class Player extends Actor {
       direcao = direcao.normalize();
       this.direction = direcao.clone();
     }
+    this.graphics.use(direcao.magnitude > 0 ? 'walk' : 'idle');
+    if (direcao.x < 0) this.graphics.flipHorizontal = true;
+    else if (direcao.x > 0) this.graphics.flipHorizontal = false;
     
-    // comando de tiro (barra de espaço)
+    // comando de tiro (mouse)
 
     if(engine.input.pointers.isDown(0) && this.fire_cd <=0){
-      const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
-      this.fire_cd = 120;
-      this.scene?.add(bullet);
+
+      // balas padrão
+      if(this.weapon == 'bullet'){ 
+        const bullet = new Bullet(this.pos.clone(), engine.input.pointers.primary.lastWorldPos.sub(this.pos));
+        this.fire_cd = 450; // cadência de tiros
+        this.scene?.add(bullet);
+      }
     }
 
-    this.vel = direcao.scale(250); // velocidade do player
+    this.vel = direcao.scale(200); // velocidade do player
   }
 
   override onPostUpdate(engine: Engine, elapsedMs: number): void {
@@ -94,7 +110,7 @@ export class Player extends Actor {
   override onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
     if (other.owner?.hasTag("enemy") && this.invul <= 0){ // verificar se o player tomou hit do inimigo
       this.hp -= 1;
-      this.invul = 2000;
+      this.invul = 200;
     }
     if (this.hp <= 0) {
       const engine = this.scene?.engine;
@@ -110,6 +126,16 @@ export class Player extends Actor {
     if (other.owner?.hasTag("heal")){
       this.hp = Math.min(this.hp + 1, 3)
       other.owner?.kill()
+    }
+
+    if (other.owner?.hasTag("rocket")) {
+      this.weapon = 'rocket';
+      other.owner.kill();
+    }
+
+    if (other.owner?.hasTag("beam")) {
+      this.weapon = 'beam';
+      other.owner.kill();
     }
   }
 

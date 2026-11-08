@@ -1,7 +1,8 @@
 import { Actor, ActorArgs, Collider, CollisionType, Engine, Vector } from "excalibur";
 import { Player } from "./player";
-import { HeartPickup } from "./heart_pickup";
+import { HeartPickup } from "./pickups/heart_pickup";
 import { ScoreManager } from "../managers/score_manager";
+import { EnemyGroup } from "../config/collision-group";
 import { GlitchFx, GlitchOptions } from "./glitchfx";
 
 export type BugConfig = ActorArgs & {
@@ -19,22 +20,32 @@ export abstract class Bug extends Actor {
     private stuckTime: number = 0;
     private detourTime: number = 0;
     private detourSide: number = 1;
+    private static hp_droptime: number = -20000;
+    private static readonly hp_drop_cd = 20000;
 
     constructor(config: BugConfig) {
         super({
             collisionType: CollisionType.Active,
-            ...config
+            ...config,
+            collisionGroup: EnemyGroup
         });
+        this.addTag('enemy');
         this.speed = config.speed;
         this.hp = config.hp;
     }
 
     override onCollisionStart(_self: Collider, other: Collider): void {
-        const bullet = other.owner;
-        if (bullet && bullet.name === 'Bullet' && !bullet.isKilled()) {
-            bullet.kill();     
+        // detectar se o inimigo foi atingido (hitbox)
+         const hitbox = other.owner;
+         if (!hitbox || hitbox.isKilled()) 
+            return;
+
+        // bala comum
+        if (hitbox.name === 'Bullet') {
+            hitbox.kill();     
             this.takeDamage(1);
         }
+
     }
 
     public takeDamage(amount: number = 1): void {
@@ -54,11 +65,18 @@ export abstract class Bug extends Actor {
 
     protected onDeath(): void {
         ScoreManager.getInstance().addPoints(2);
+        
+        const now = Date.now();
+        // Verifica o cooldown global
+        if (now - Bug.hp_droptime < Bug.hp_drop_cd) {
+            return;
+        }
 
         const drop_chance = Math.random();
         if(drop_chance >= 0.80){
             const heart_drop = new HeartPickup(this.pos.clone());
             this.scene?.add(heart_drop);
+            Bug.hp_droptime = now;
         }
     }
 
