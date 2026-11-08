@@ -30,14 +30,37 @@ export class MyLevel extends Scene {
         const engine = this.engine;
         const w = engine.drawWidth;
         const h = engine.drawHeight;
-        const thickness = 32;
+
+        // adiciona o background
+        const windowBackground = new ScreenElement({
+            pos: vec(0, 0),
+            z: -10 // fica atrás de tudo (paredes, player, pastas)
+        });
+        windowBackground.anchor = vec(0, 0);
+
+        const frameSprite = Resources.WindowFrame.toSprite();
+        frameSprite.destSize = {
+            width: w,
+            height: h
+        };
+        windowBackground.graphics.use(frameSprite);
+        this.add(windowBackground);
+
+        const playX = 175;
+        const playY = 110;
+        const playW = w - 175 - 35;
+        const playH = h - 110 - 35;
+        const centerX = playX + playW / 2;
+        const centerY = playY + playH / 2;
 
         // constroi mapa e portas
+        const thickness = 32;
         const doorSides = MapBuilder.getRandomDoorSides(3);
         const doorPositions = MapBuilder.buildMapWithDoors(this, w, h, thickness, doorSides);
 
         // inicializar ScoreManager
-        const scoreLabel = ScoreManager.getInstance().init(w);
+        const scoreLabel = ScoreManager.getInstance().init(playX + playW - 60);
+        scoreLabel.z = 10;
         this.add(scoreLabel);
 
         // inicializar SpawnerManager (virus a cada 30s)
@@ -46,35 +69,44 @@ export class MyLevel extends Scene {
 
         // adicionar player
         this.player = new Player();
-        this.player.pos = vec(w / 2, (h / 2) + 100);
+        this.player.pos = vec(centerX, centerY + 50);
+        this.player.z = 5; // Garante visibilidade sobre o cenário
         this.add(this.player);
 
         // corações de Vida
         for (let i = 0; i < 3; i++) {
             const heart = new ScreenElement({
-                pos: vec(40 + i * 40, 30),
+                pos: vec(playX + 30 + i * 35, playY + 25),
+                z: 10
             });
             const sprite = Resources.Heart.toSprite();
-            sprite.width = 30;
-            sprite.height = 30;
+            sprite.width = 24;
+            sprite.height = 24;
             heart.graphics.use(sprite);
             this.hearts.push(heart);
             this.add(heart);
+        
         }
 
         // subpastas
-        const folder1 = new SubFolder('as_fotos_da_festa_ficaram_otimas', vec((w / 2) - 110, (h / 2) - 80));
-        const folder2 = new SubFolder('trabalho_fsi_final_agora_vai_prometo_', vec((w / 2) + 110, (h / 2) - 80));
+        const folder1 = new SubFolder('as_fotos_da_festa_ficaram_otimas', vec(centerX - 90, centerY - 40));
+        const folder2 = new SubFolder('trabalho_fsi_final_agora_vai_prometo_', vec(centerX + 90, centerY - 40));
+        folder1.z = 5;
+        folder2.z = 5;
         this.subFolders.push(folder1, folder2);
         this.add(folder1);
         this.add(folder2);
 
         // bugs de teste
-        this.add(new BigBug(vec(w / 2, 90)));
-        this.add(new SmallBug(vec(100, 100)));
-        this.add(new SmallBug(vec(w - 100, 100)));
-
-        
+        const bug1 = new BigBug(vec(centerX, centerY - 100));
+        const bug2 = new SmallBug(vec(playX + 50, playY + 50));
+        const bug3 = new SmallBug(vec(playX + playW - 50, playY + 50));
+        bug1.z = 5;
+        bug2.z = 5;
+        bug3.z = 5;
+        this.add(bug1);
+        this.add(bug2);
+        this.add(bug3);
     }
 
     override onDeactivate(_context: SceneActivationContext): void {
