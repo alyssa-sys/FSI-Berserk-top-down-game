@@ -1,5 +1,6 @@
-import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine, CollisionGroup } from "excalibur";
-import { EnemyGroup, StructureGroup } from "../config/collision-group";
+import { Actor, Vector, Rectangle, Color, CollisionType, Canvas, Engine, Sprite } from "excalibur";
+import { StructureGroup } from "../config/collision-group";
+import { Resources } from "../config/resources";
 
 export class SubFolder extends Actor {
     public folderName: string;
@@ -7,6 +8,8 @@ export class SubFolder extends Actor {
     public infectionLevel: number = 0;  // de 0 a 100%
     private healthBar: Actor | null = null;
     private rectGraphic: Rectangle;
+
+    private folderSprites: { [key: number]: Sprite } = {};
 
     constructor(name: string, pos: Vector) {
         super({
@@ -20,20 +23,24 @@ export class SubFolder extends Actor {
         this.addTag('folder_col'); // hiago: tag de colisão com a bala
         this.folderName = name;
 
-        // Guarda a referencia da pasta pra atualizar a cor progressivamente
-        this.rectGraphic = new Rectangle({
-            width: 64,
-            height: 64,
-            color: Color.fromHex('#4d7b62')
-        });
-
     }
 
     override onInitialize(_engine: Engine): void {
-        // Visual temporario da pasta
-        this.graphics.use(this.rectGraphic);
+        // 1. Carrega e redimensiona os sprites para o tamanho do ator (64x64)
+        this.folderSprites[100] = Resources.Folder100.toSprite();
+        this.folderSprites[75]  = Resources.Folder75.toSprite();
+        this.folderSprites[50]  = Resources.Folder50.toSprite();
+        this.folderSprites[25]  = Resources.Folder25.toSprite();
+        this.folderSprites[0]   = Resources.Folder0.toSprite();
 
-        // barra de vida
+        Object.values(this.folderSprites).forEach(sprite => {
+            sprite.destSize = { width: 64, height: 64 };
+        });
+
+        // 2. Define o sprite inicial de 100% de vida
+        this.updateFolderSprite();
+
+        // 3. Barra de vida acima da pasta
         const barWidth = 64;
         const barHeight = 6;
 
@@ -79,31 +86,25 @@ export class SubFolder extends Actor {
             this.triggerGameOver();
 
         }
-            // Fica vermelha quando totalmente corrompida
-            this.updateFolderColor();
+            // troca o sprite da pasta enquanto está sendo infectada
+            this.updateFolderSprite();
         
     }
 
-    private updateFolderColor(): void {
-        const health = Math.max(0, 100 - this.infectionLevel); // Vida de 100 a 0
-        let r = 0, g = 0, b = 0;
+    private updateFolderSprite(): void {
+        const health = Math.max(0, 100 - this.infectionLevel); // Vida restante de 100 a 0%
 
-        if (health >= 50) {
-            // De 100% a 50%: Transição do Verde (#4d7b62 -> RGB: 77, 123, 98) para Amarelo (#f1c40f -> RGB: 241, 196, 15)
-            const t = (100 - health) / 50; // t vai de 0 (em 100%) a 1 (em 50%)
-            r = Math.round(77 + (241 - 77) * t);
-            g = Math.round(123 + (196 - 123) * t);
-            b = Math.round(98 + (15 - 98) * t);
+        if (health > 75) {
+            this.graphics.use(this.folderSprites[100]);
+        } else if (health > 50) {
+            this.graphics.use(this.folderSprites[75]);
+        } else if (health > 25) {
+            this.graphics.use(this.folderSprites[50]);
+        } else if (health > 0) {
+            this.graphics.use(this.folderSprites[25]);
         } else {
-            // De 50% a 0%: Transição do Amarelo (#f1c40f -> RGB: 241, 196, 15) para Vermelho (#e74c3c -> RGB: 231, 76, 60)
-            const t = (50 - health) / 50; // t vai de 0 (em 50%) a 1 (em 0%)
-            r = Math.round(241 + (231 - 241) * t);
-            g = Math.round(196 + (76 - 196) * t);
-            b = Math.round(15 + (60 - 15) * t);
+            this.graphics.use(this.folderSprites[0]);
         }
-
-        // atualiza a cor do grafico exibido
-        this.rectGraphic.color = Color.fromRGB(r, g, b);
     }
 
     // Método pra corromper pastas quando o vírus chega nelas
@@ -117,7 +118,7 @@ export class SubFolder extends Actor {
             this.triggerGameOver();
         }
 
-        this.updateFolderColor();
+        this.updateFolderSprite();
     }
 
         private triggerGameOver(): void {
