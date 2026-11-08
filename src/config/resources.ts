@@ -3,7 +3,8 @@ import { ImageSource, Loader } from "excalibur";
 export const Resources = {
   Sword: new ImageSource("./images/sword.png"),
   PlayerSheet: new ImageSource("./images/player_sheet.png"),
-  Heart: new ImageSource("./images/heart.png")
+  Heart: new ImageSource("./images/heart.png"),
+  BoldFont: new ImageSource("./images/BoldPixels.png"),
 } as const; 
 
 

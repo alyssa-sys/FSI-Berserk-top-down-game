@@ -1,4 +1,6 @@
 import { Label, Font, Color, TextAlign, vec } from "excalibur";
+import { SpriteSheet, SpriteFont } from "excalibur";
+import { Resources } from "../config/resources";
 
 export class ScoreManager {
     private static instance: ScoreManager | null = null;
@@ -16,16 +18,25 @@ export class ScoreManager {
     }
 
     public init(screenWidth: number): Label {
+        const fontSheet = SpriteSheet.fromImageSource({
+            image: Resources.BoldFont,
+            grid: { rows: 83, columns: 16, spriteWidth: 8, spriteHeight: 16 },
+            spacing: {originOffset: { x: 1, y: 1 },  
+            margin: { x: 1, y: 1 }
+        }
+        });
+        const spriteFont = new SpriteFont({
+            alphabet: ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
+            spriteSheet: fontSheet,
+            spacing: 0
+        });
         this.score = 0; // Reinicia a pontuação ao iniciar a fase
         this.scoreLabel = new Label({
             text: `SCORE: ${this.score}`,
-            pos: vec(screenWidth - 40, 20),
-            font: new Font({
-                size: 20,
-                color: Color.White,
-                textAlign: TextAlign.Right
-            })
+            pos: vec(screenWidth - 200, 20),
+            spriteFont: spriteFont
         });
+        this.scoreLabel.scale = vec(2, 2); // aumenta o texto, ajuste a gosto
         return this.scoreLabel;
     }
 
