@@ -56,8 +56,11 @@ export class MyLevel extends Scene {
         const doorPositions = MapBuilder.buildMapWithDoors(this, w, h, thickness, doorSides);
 
         // inicializar ScoreManager
-        const scoreLabel = ScoreManager.getInstance().init(playX + playW - 60);
-        scoreLabel.z = 10;
+        const scoreX = playX + playW - 20;
+        const scoreY = playY - 100;
+
+        const scoreLabel = ScoreManager.getInstance().init(scoreX, scoreY);
+        scoreLabel.z = 20;
         this.add(scoreLabel);
 
         // inicializar SpawnerManager (virus a cada 30s)

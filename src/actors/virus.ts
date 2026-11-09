@@ -11,7 +11,7 @@ export class Virus extends Bug {
     
 
     constructor(pos: Vector) {
-        super({
+        super({ 
             name: 'Virus',
             pos: pos,
             width: 56,

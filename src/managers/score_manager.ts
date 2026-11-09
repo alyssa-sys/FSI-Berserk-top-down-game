@@ -15,15 +15,16 @@ export class ScoreManager {
         return ScoreManager.instance;
     }
 
-    public init(screenWidth: number): Label {
+    public init(posX: number, posY: number = 25): Label {
         this.score = 0; // Reinicia a pontuação ao iniciar a fase
         this.scoreLabel = new Label({
             text: `SCORE: ${this.score}`,
-            pos: vec(screenWidth - 40, 20),
+            pos: vec(posX, posY),
             font: new Font({
                 size: 20,
-                color: Color.White,
-                textAlign: TextAlign.Right
+                color: Color.fromRGB(80, 80, 80),
+                textAlign: TextAlign.Right,
+                bold: true
             })
         });
         return this.scoreLabel;
