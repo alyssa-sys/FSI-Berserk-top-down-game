@@ -11,7 +11,7 @@ export class BigBug extends Bug {
     private readonly shootRange: number = 400;     
     private readonly shootCooldown: number = 1800; 
     private readonly chargeTime: number = 350;     
-    private readonly aimLead: number = 0.3;        
+    private readonly aimLead: number = 0.2;        
     private shootTimer: number = 1000;             
 
     constructor(pos: Vector) {
@@ -21,7 +21,7 @@ export class BigBug extends Bug {
             width: 56,
             height: 56,
             speed: 60,
-            hp: 6
+            hp: 5
         });
     }
 
