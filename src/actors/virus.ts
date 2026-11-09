@@ -1,7 +1,8 @@
-import { Actor, Vector, Color, Rectangle, Engine, CollisionType, Collider, CollisionContact, Side, Canvas } from "excalibur";
+import { Actor, Vector, Engine, Collider, Animation, AnimationStrategy } from "excalibur";
 import { Bug } from "./bug"
 import { SubFolder } from "../actors/subfolder";
 import { ScoreManager } from "../managers/score_manager";
+import { Resources } from "../config/resources";
 
 export class Virus extends Bug {
     private target: Actor | null = null;
@@ -13,8 +14,8 @@ export class Virus extends Bug {
         super({
             name: 'Virus',
             pos: pos,
-            width: 24,
-            height: 24,
+            width: 56,
+            height: 56,
             speed: 70,
             // collisionType: CollisionType.Active // Permite que ele colida com paredes e subpastas
             hp: 3
@@ -24,44 +25,61 @@ export class Virus extends Bug {
     override onInitialize(engine: Engine): void {
         // visual temporario do virus
         this.addTag('enemy'); // tag de inimigo para causar dano ao player
-        this.graphics.use(new Rectangle({
-            width: 24,
-            height: 24,
-            color: Color.fromHex('#ff4d4d')
-        }));
+        // frames de animacao do virus
+        const frames = [
+            { graphic: Resources.Virus1.toSprite(), duration: 100 },
+            { graphic: Resources.Virus2.toSprite(), duration: 100 },
+            { graphic: Resources.Virus3.toSprite(), duration: 100 },
+            { graphic: Resources.Virus4.toSprite(), duration: 100 },
+            { graphic: Resources.Virus5.toSprite(), duration: 100 },
+            { graphic: Resources.Virus6.toSprite(), duration: 100 }
+        ];
 
-        // Barra de vida
-        const barWidth = 24;
-        const barHeight = 4;
-
-        this.healthBar = new Actor({
-            pos: new Vector(0, -18), // posicionamento da barra de vida um pouco acima do virus
-            width: barWidth,
-            height: barHeight
+        // Ajusta o tamanho exibido de cada frame para caber na hitbox (32x32)
+        frames.forEach(frame => {
+            frame.graphic.destSize = { width: 56, height: 56 };
         });
 
-        // desenho e atualizacao dinamica da barra de vida a cada frame
-        this.healthBar.onPreUpdate = () => {
-            const hpRatio = Math.max(0, this.hp / 3); // calcula a proporção da vida (0 a 1)
+        // 2. Configura a animação com estratégia PingPong (1->6 e 6->1)
+        const virusAnimation = new Animation({
+            frames: frames,
+            strategy: AnimationStrategy.PingPong
+        });
 
-            this.healthBar?.graphics.use(
-                new Canvas({
-                    width: barWidth,
-                    height: barHeight,
-                    draw: (ctx) => {
-                        // fundo da barra (vermelho para vida perdida)
-                        ctx.fillStyle = '#ff0000';
-                        ctx.fillRect(0, 0, barWidth, barHeight);
+        this.graphics.use(virusAnimation);
 
-                        // vida atual (verde)
-                        ctx.fillStyle = '#00ff00'
-                        ctx.fillRect(0, 0, barWidth * hpRatio, barHeight);
-                    }
-                })
-            );
-        };
-        // adiciona barra como filha para acompanhar o movimento do virus
-        this.addChild(this.healthBar);
+    //     // Barra de vida
+    //     const barWidth = 24;
+    //     const barHeight = 4;
+
+    //     this.healthBar = new Actor({
+    //         pos: new Vector(0, -18), // posicionamento da barra de vida um pouco acima do virus
+    //         width: barWidth,
+    //         height: barHeight
+    //     });
+
+    //     // desenho e atualizacao dinamica da barra de vida a cada frame
+    //     this.healthBar.onPreUpdate = () => {
+    //         const hpRatio = Math.max(0, this.hp / 3); // calcula a proporção da vida (0 a 1)
+
+    //         this.healthBar?.graphics.use(
+    //             new Canvas({
+    //                 width: barWidth,
+    //                 height: barHeight,
+    //                 draw: (ctx) => {
+    //                     // fundo da barra (vermelho para vida perdida)
+    //                     ctx.fillStyle = '#ff0000';
+    //                     ctx.fillRect(0, 0, barWidth, barHeight);
+
+    //                     // vida atual (verde)
+    //                     ctx.fillStyle = '#00ff00'
+    //                     ctx.fillRect(0, 0, barWidth * hpRatio, barHeight);
+    //                 }
+    //             })
+    //         );
+    //     };
+    //     // adiciona barra como filha para acompanhar o movimento do virus
+    //     this.addChild(this.healthBar);
     }
 
     protected override onDeath(): void {
