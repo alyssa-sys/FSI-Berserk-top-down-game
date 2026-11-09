@@ -7,9 +7,6 @@ import { ScoreManager } from "../managers/score_manager";
 import { SpawnerManager } from "../managers/spawner_manager";
 import { MapBuilder } from "../utils/map_builder";
 import { Resources } from "../config/resources";
-// import { Virus } from "../actors/virus";
-import { BugSpawner } from "../actors/bugspawner";
-// import { HeartPickup } from "../actors/heart_pickup";
  
 
 type WallSide = 'top' | 'bottom' | 'left' | 'right'; 
@@ -123,11 +120,11 @@ export class MyLevel extends Scene {
         }
         
         // checa gamen over pelas pastas
-        const pastaDestruida = this.subFolders.some(folder => folder.isInfected || folder.isKilled());
+        const todasPastasDestruidas = this.subFolders.length > 0 && 
+            this.subFolders.every(folder => folder.isInfected || folder.isKilled());
 
-        if (pastaDestruida) {
+        if (todasPastasDestruidas) {
             this.triggerGameOver();
-
         }
     }
 

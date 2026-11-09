@@ -7,7 +7,6 @@ export class SubFolder extends Actor {
     public isInfected: boolean = false;
     public infectionLevel: number = 0;  // de 0 a 100%
     private healthBar: Actor | null = null;
-    private rectGraphic: Rectangle;
 
     private folderSprites: { [key: number]: Sprite } = {};
 
@@ -83,7 +82,6 @@ export class SubFolder extends Actor {
         if (this.infectionLevel >= 100) {
             this.infectionLevel = 100;
             this.isInfected = true;
-            this.triggerGameOver();
 
         }
             // troca o sprite da pasta enquanto está sendo infectada
@@ -115,17 +113,10 @@ export class SubFolder extends Actor {
         if (this.infectionLevel >= 100) {
             this.infectionLevel = 100;
             this.isInfected = true;
-            this.triggerGameOver();
         }
 
         this.updateFolderSprite();
     }
 
-        private triggerGameOver(): void {
-        const engine = this.scene?.engine;
-        if(engine) {
-            engine.goToScene('gameover');
-        }
-    }
 }
 
